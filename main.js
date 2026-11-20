@@ -691,7 +691,11 @@ function startSignalServer() {
 // protocol: pet://assets/... serves the sprite files to the renderer
 // ---------------------------------------------------------------------------
 protocol.registerSchemesAsPrivileged([
-  { scheme: "pet", privileges: { standard: true, secure: true, supportFetchAPI: true } },
+  // corsEnabled: the renderer is loaded from file:// (loadFile), and fetch()
+  // to pet:// is CORS-blocked without this flag — manifest.json / pet.json /
+  // spritesheet loads then fail and the pet silently falls back to Whale Girl
+  // art. supportFetchAPI alone does not unlock cross-origin fetch.
+  { scheme: "pet", privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true } },
 ]);
 
 /** Resolve pet://assets/characters/<id>/<file> across the writable userData
