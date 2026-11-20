@@ -1031,16 +1031,37 @@ export function apply(ctx) {
     return null;
   };
 
+  // Task terminal states: completed -> celebrate, failed -> error. The jobs
+  // registry API differs between Harness versions: current builds
+  // (dsh-jobs / dsh-jobs-local) expose ctx.jobs.events.subscribe(filter,
+  // listener) with { type: 'settled', job } events, while older ones had
+  // ctx.jobs.onJobDone(snapshot). Prefer the current one; fall back to the
+  // old one, and tolerate a profile where neither exists (the desktop
+  // profile has no onJobDone — calling a missing method would throw and
+  // break plugin activation entirely).
+  const onJobSettled = (status, label) => {
+    if (status === "completed") {
+      sendSignal({ type: "celebrate", label: label ?? "Task complete" });
+    } else if (status === "failed") {
+      sendSignal({ type: "error", label: label ?? "Task failed" });
+    }
+  };
+  const jobsDisposer =
+    typeof ctx.jobs?.events?.subscribe === "function"
+      ? ctx.jobs.events.subscribe({ owners: "all" }, (event) => {
+          if (!event || event.type !== "settled") return;
+          const job = event.job ?? {};
+          onJobSettled(job.status, job.label);
+        })
+      : typeof ctx.jobs?.onJobDone === "function"
+        ? ctx.jobs.onJobDone((snapshot) => {
+            if (!snapshot) return;
+            onJobSettled(snapshot.status, snapshot.label);
+          })
+        : null;
+
   const disposers = [
-    // Task terminal states: completed -> celebrate, failed -> error.
-    ctx.jobs.onJobDone((snapshot) => {
-      if (!snapshot) return;
-      if (snapshot.status === "completed") {
-        sendSignal({ type: "celebrate", label: snapshot.label ?? "Task complete" });
-      } else if (snapshot.status === "failed") {
-        sendSignal({ type: "error", label: snapshot.label ?? "Task failed" });
-      }
-    }),
+    ...(jobsDisposer ? [jobsDisposer] : []),
 
     // LLM request errors (may retry later) -> startled.
     ctx.on("agent/request-error", () => {
