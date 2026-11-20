@@ -257,13 +257,13 @@ body[data-chat] #chat {
    to the right edge instead. The width is FLUID: it always leaves the pet zone
    (--pet-size) free, so a large pet never overlaps the panel. */
 /* ---------------------------------------------------------------------------
-   Chat panel — themed after the DSH web UI (浅色主题):
+   Chat panel — themed after the DSH web UI (light theme):
    - the web's own background image (chat-bg.webp, extracted from the running
      web app) shown cover, under a light frosted scrim like the web's
      translucent cards on the body wallpaper
    - DeepSeek brand blue #4176E6 accents, label navy #172347 text, the web's
      user bubble #EDF3FE, and tool cards with the running sweep highlight
-     (调用工具时的扫光虚化) plus an io-style output preview
+     (the sweep highlight while a tool runs) plus an io-style output preview
    --------------------------------------------------------------------------- */
 #chat {
   position: absolute;
@@ -585,9 +585,9 @@ body[data-chat-open] #statusbar {
 }
 
 /* maid-atelier porcelain tool card: porcelain base + thin gold rim (like the
-   skin's message bubbles), compact row (icon + name + target), an 输入
+   skin's message bubbles), compact row (icon + name + target), an Input
    io-section with the arguments, a running sweep while the tool executes,
-   then an 输出 io-section with the result */
+   then an Output io-section with the result */
 #chat .chat-tool {
   align-self: flex-start;
   max-width: 100%;
@@ -606,7 +606,7 @@ body[data-chat-open] #statusbar {
   box-shadow: 0 2px 14px rgba(19, 38, 87, 0.14);
 }
 /* the running sweep highlights the header ROW only (like the web), never
-   covering the 输入/输出 sections */
+   covering the Input/Output sections */
 #chat .chat-tool[data-running] .chat-tool-head::after {
   content: "";
   position: absolute;
@@ -658,7 +658,7 @@ body[data-chat-open] #statusbar {
   white-space: nowrap;
   color: #61666b;
 }
-/* io section (输入 / 输出) — porcelain code surface, sticky label column +
+/* io section (Input / Output) — porcelain code surface, sticky label column +
    scrollable mono text */
 #chat .chat-tool-io {
   margin-top: 4px;
@@ -696,7 +696,7 @@ body[data-chat-open] #statusbar {
 /* consecutive tool calls merge into one collapsible group: collapsed by
    default, the head shows the count + the LATEST tool's preview (the long
    runs no longer push the conversation down); click to expand the full run
-   with every card's 输入/输出 sections */
+   with every card's Input/Output sections */
 #chat .chat-tool-group {
   align-self: flex-start;
   max-width: 100%;
@@ -858,7 +858,7 @@ body[data-chat-open] #statusbar {
 }
 #chat .chat-input-row button:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
 #chat .chat-input-row button:disabled { opacity: 0.5; cursor: default; }
-/* 轮次 / token / 缓存命中 readout under the input (web TurnTail style) */
+/* Turn / token / Cache hit readout under the input (web TurnTail style) */
 #chat .chat-stats {
   flex: 0 0 auto;
   padding: 2px 14px 4px;

@@ -20,17 +20,17 @@ describe("growth ledger", () => {
 
   it("unlocks titles by thresholds and returns their names once", () => {
     const ledger = { ...C.DEFAULT_LEDGER, feeds: 1 };
-    expect(C.checkTitles(ledger)).toEqual(["初次投喂"]);
+    expect(C.checkTitles(ledger)).toEqual(["First Feed"]);
     expect(C.checkTitles(ledger)).toEqual([]); // already unlocked
     ledger.feeds = 20;
-    expect(C.checkTitles(ledger)).toEqual(["常客"]);
+    expect(C.checkTitles(ledger)).toEqual(["Regular"]);
     ledger.plays = 30;
-    expect(C.checkTitles(ledger)).toEqual(["玩伴"]);
+    expect(C.checkTitles(ledger)).toEqual(["Playmate"]);
   });
 
   it("activeMs unlocks the loyalty title", () => {
     const ledger = { ...C.DEFAULT_LEDGER, activeMs: 6 * 3_600_000 };
-    expect(C.checkTitles(ledger)).toContain("常驻伙伴");
+    expect(C.checkTitles(ledger)).toContain("Loyal Companion");
   });
 });
 

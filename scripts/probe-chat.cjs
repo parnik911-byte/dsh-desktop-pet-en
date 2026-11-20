@@ -37,11 +37,11 @@ app.whenReady().then(async () => {
   await sleep(120);
 
   // ---- 1) LIVE: three consecutive tools -> ONE collapsed group ----
-  sig("tool", { callId: "a", tool: "pwsh", label: "⚡ 执行命令", summary: "git clone ..." });
+  sig("tool", { callId: "a", tool: "pwsh", label: "⚡ Run command", summary: "git clone ..." });
   await sleep(20);
-  sig("tool", { callId: "b", tool: "grep", label: "🔎 搜索内容", summary: "pattern: x" });
+  sig("tool", { callId: "b", tool: "grep", label: "🔎 Search content", summary: "pattern: x" });
   await sleep(20);
-  sig("tool", { callId: "c", tool: "read", label: "📖 读文件", summary: "renderer/pet.js", argsText: '{"file_path":"renderer/pet.js"}' });
+  sig("tool", { callId: "c", tool: "read", label: "📖 Read file", summary: "renderer/pet.js", argsText: '{"file_path":"renderer/pet.js"}' });
   await sleep(40);
   const live = JSON.parse(await evaljs(`JSON.stringify({
     groups: document.querySelectorAll(".chat-tool-group").length,
@@ -53,14 +53,14 @@ app.whenReady().then(async () => {
   })`));
   check("3 tools -> 1 group", live.groups === 1 && live.bare === 0, JSON.stringify(live));
   check("group collapsed by default", live.collapsed === true);
-  check("head shows count", live.count === "🛠️ 工具调用 × 3", live.count);
-  check("head previews LATEST tool", live.preview === "📖 读文件 · renderer/pet.js", live.preview);
+  check("head shows count", live.count === "🛠️ Tool calls × 3", live.count);
+  check("head previews LATEST tool", live.preview === "📖 Read file · renderer/pet.js", live.preview);
   check("group body holds all 3 cards", live.bodyCards === 3, String(live.bodyCards));
 
   // assistant text seals the run; a NEW tool afterwards starts a bare card
-  sig("assistant", { text: "好的，我检查一下。" });
+  sig("assistant", { text: "OK, let me check." });
   await sleep(20);
-  sig("tool", { callId: "d", tool: "glob", label: "🔍 查找文件", summary: "**/*.css" });
+  sig("tool", { callId: "d", tool: "glob", label: "🔍 Find files", summary: "**/*.css" });
   await sleep(40);
   const afterSeal = JSON.parse(await evaljs(`JSON.stringify({
     groups: document.querySelectorAll(".chat-tool-group").length,
@@ -93,11 +93,11 @@ app.whenReady().then(async () => {
   sig("history", {
     sessionId: "s2",
     rows: [
-      { role: "user", text: "你好" },
-      { role: "tool", callId: "h1", tool: "pwsh", label: "⚡ 执行命令", summary: "cmd 1", done: true },
-      { role: "tool", callId: "h2", tool: "grep", label: "🔎 搜索内容", summary: "pat 2", done: true, output: "ok" },
-      { role: "assistant", text: "结果如上" },
-      { role: "tool", callId: "h3", tool: "read", label: "📖 读文件", summary: "file 3", done: true },
+      { role: "user", text: "Hi" },
+      { role: "tool", callId: "h1", tool: "pwsh", label: "⚡ Run command", summary: "cmd 1", done: true },
+      { role: "tool", callId: "h2", tool: "grep", label: "🔎 Search content", summary: "pat 2", done: true, output: "ok" },
+      { role: "assistant", text: "As above" },
+      { role: "tool", callId: "h3", tool: "read", label: "📖 Read file", summary: "file 3", done: true },
     ],
   });
   await sleep(60);
@@ -111,35 +111,35 @@ app.whenReady().then(async () => {
   check("history groups the 2-tool run, keeps the single tool bare",
     hist.groups === 1 && hist.bare === 1 && hist.totalTools === 3,
     JSON.stringify(hist));
-  check("history group collapsed, count × 2", hist.collapsed && hist.count === "🛠️ 工具调用 × 2", hist.count);
+  check("history group collapsed, count × 2", hist.collapsed && hist.count === "🛠️ Tool calls × 2", hist.count);
 
   // ---- 4) STALENESS: pending load drops a history for another session ----
   sig("sessions", { list: [
-    { id: "sa", title: "会话A", createdAt: 1 },
-    { id: "sb", title: "会话B", createdAt: 2 },
+    { id: "sa", title: "Session A", createdAt: 1 },
+    { id: "sb", title: "Session B", createdAt: 2 },
   ] });
   await sleep(50);
   await evaljs(`document.getElementById("chat-session-picker").click(); true`);
   await sleep(30);
-  await evaljs(`[...document.querySelectorAll(".chat-session-row")].find(r => r.textContent.includes("会话B")).click(); true`);
+  await evaljs(`[...document.querySelectorAll(".chat-session-row")].find(r => r.textContent.includes("Session B")).click(); true`);
   await sleep(40);
   const loading = await evaljs(`document.querySelector(".chat-messages .chat-session-empty")?.textContent ?? ""`);
-  check("picker click shows loading placeholder", loading.includes("正在加载"), loading);
-  sig("history", { sessionId: "sa", rows: [{ role: "user", text: "旧会话A内容" }] });
+  check("picker click shows loading placeholder", loading.includes("Loading"), loading);
+  sig("history", { sessionId: "sa", rows: [{ role: "user", text: "Old Session A content" }] });
   await sleep(60);
   const afterStale = await evaljs(`document.querySelector(".chat-messages .chat-session-empty")?.textContent ?? "NONE"`);
   check("stale history for another session is DROPPED (loading stays)",
-    afterStale.includes("正在加载"), afterStale);
-  sig("history", { sessionId: "sb", rows: [{ role: "user", text: "会话B内容" }] });
+    afterStale.includes("Loading"), afterStale);
+  sig("history", { sessionId: "sb", rows: [{ role: "user", text: "Session B content" }] });
   await sleep(60);
   const afterB = await evaljs(`document.querySelector(".chat-messages .chat-row .chat-bubble")?.textContent ?? "NONE"`);
-  check("awaited session history applies", afterB === "会话B内容", afterB);
+  check("awaited session history applies", afterB === "Session B content", afterB);
 
   // ---- 5) TRUNCATION NOTE: a capped (old/long) history shows the note ----
   sig("history", {
     sessionId: "s3",
     truncated: { skipped: 480, shown: 120 },
-    rows: Array.from({ length: 120 }, (_, i) => ({ role: "assistant", text: `历史消息 ${i}` })),
+    rows: Array.from({ length: 120 }, (_, i) => ({ role: "assistant", text: `History message ${i}` })),
   });
   await sleep(60);
   const trunc = JSON.parse(await evaljs(`JSON.stringify({
@@ -147,7 +147,7 @@ app.whenReady().then(async () => {
     rows: document.querySelectorAll(".chat-messages > .chat-row").length,
   })`));
   check("truncated history shows the recent-tail note",
-    trunc.note.includes("仅显示最近 120 条") && trunc.note.includes("480"), trunc.note);
+    trunc.note.includes("latest 120 messages") && trunc.note.includes("480"), trunc.note);
   check("truncated history rendered only the sent tail",
     trunc.rows === 120, String(trunc.rows));
 
@@ -157,17 +157,17 @@ app.whenReady().then(async () => {
   const failed = JSON.parse(await evaljs(`JSON.stringify({
     retry: !!document.querySelector(".chat-retry-btn"),
     text: document.querySelector(".chat-messages .chat-session-empty")?.textContent ?? "",
-    empty: (document.querySelector(".chat-messages .chat-session-empty")?.textContent ?? "").includes("暂无消息记录"),
+    empty: (document.querySelector(".chat-messages .chat-session-empty")?.textContent ?? "").includes("No messages"),
   })`));
   check("failed history shows retry (not 'empty session')",
     failed.retry === true && failed.empty === false, failed.text);
   await evaljs(`document.querySelector(".chat-retry-btn").click(); true`);
   await sleep(50);
   const afterRetry = await evaljs(`document.querySelector(".chat-messages .chat-session-empty")?.textContent ?? ""`);
-  check("retry click re-shows the loading placeholder", afterRetry.includes("正在加载"), afterRetry);
+  check("retry click re-shows the loading placeholder", afterRetry.includes("Loading"), afterRetry);
 
   // ---- 7) MARKDOWN: assistant bubbles render markdown, not raw text ----
-  sig("assistant", { text: "# 标题\n\n这是**加粗**、`code` 和 [链接](https://example.com)\n\n```js\nconst x = 1 < 2;\n```" });
+  sig("assistant", { text: "# Title\n\nThis is **bold**, `code` and [link](https://example.com)\n\n```js\nconst x = 1 < 2;\n```" });
   await sleep(60);
   const md = JSON.parse(await evaljs(`JSON.stringify({
     h1: !!document.querySelector(".chat-assistant .chat-bubble h1"),

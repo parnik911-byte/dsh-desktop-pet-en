@@ -176,7 +176,7 @@ function textOfBlocks(content) {
 
 // Crash recovery: a spawned pet that dies unexpectedly (non-zero exit) is
 // restarted with a small backoff, capped so a hard-failing install does not
-// respawn forever. A zero exit is a deliberate quit (tray -> 退出) and never
+// respawn forever. A zero exit is a deliberate quit (tray -> Quit) and never
 // resurrects the pet.
 let petRespawnTimer = null;
 let petRespawnAttempts = 0;
@@ -291,7 +291,7 @@ export function apply(ctx) {
   let chatFollowSessionId = null;
   /** Per-turn token accounting for the stats line under the chat input —
    *  reset on turn/start, accumulated from each step's assistant/message
-   *  usage, mirroring the web UI's 轮次 / token / 缓存命中 readout. */
+   *  usage, mirroring the web UI's Turn / token / Cache hit readout. */
   let chatStats = { turn: 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
   const resetChatStats = (turn) => {
     chatStats = { turn: turn ?? 0, inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
@@ -372,7 +372,7 @@ export function apply(ctx) {
           row.isError = isError;
         } else if (output) {
           // result without a visible call row (edge case) — still show it
-          rows.push({ role: "tool", callId, tool: null, label: "工具结果", summary: null, argsText: null, done: true, output, isError });
+          rows.push({ role: "tool", callId, tool: null, label: "Tool result", summary: null, argsText: null, done: true, output, isError });
         }
       }
     }
@@ -447,7 +447,7 @@ export function apply(ctx) {
   /** List sessions with their titles and a message preview — PERSISTED ones
    *  plus LIVE (in-memory) ones, so the pet picker matches what the web
    *  sidebar shows: the web also lists sessions that were just created but
-   *  not yet flushed to disk (lazy materialization — a fresh "新会话" with no
+   *  not yet flushed to disk (lazy materialization — a fresh "new conversation" with no
    *  message has no log file yet, so persistence.list() alone would miss it). */
   const listSessions = async () => {
     try {
@@ -542,10 +542,10 @@ export function apply(ctx) {
         if (isTrivialText(title) && isTrivialText(preview)) continue;
         rows.push({
           id: entry.id,
-          // no "会话" prefix — the date lives in the row's meta already, and
+          // no "session" prefix — the date lives in the row's meta already, and
           // this fallback also shows in the chat title bar; a lone "." from a
           // degenerate auto-title is never a real title
-          title: isTrivialText(title) ? "未命名" : title,
+          title: isTrivialText(title) ? "Untitled" : title,
           preview: isTrivialText(preview) ? "" : preview,
           createdAt: entry.createdAt,
         });
@@ -704,7 +704,7 @@ export function apply(ctx) {
   const submitChatPrompt = async (text) => {
     const agent = await resolveChatAgent();
     if (!agent || typeof agent.followup !== "function") {
-      sendSignal({ type: "chat", kind: "error", text: "没有可对话的 Agent（请先在网页里打开一个会话）" });
+      sendSignal({ type: "chat", kind: "error", text: "No Agent to chat with (open a session in the web UI first)" });
       return false;
     }
     chatTargetAgent = agent;
@@ -716,7 +716,7 @@ export function apply(ctx) {
       return true;
     } catch (err) {
       console.error("[dsh-desktop-pet] followup failed:", err?.message ?? err);
-      sendSignal({ type: "chat", kind: "error", text: `提交失败：${err?.message ?? err}` });
+      sendSignal({ type: "chat", kind: "error", text: `Submit failed: ${err?.message ?? err}` });
       return false;
     }
   };
@@ -799,14 +799,14 @@ export function apply(ctx) {
     try {
       const agentsSvc = ctx.get("agents");
       if (!agentsSvc || typeof agentsSvc.create !== "function") {
-        sendSignal({ type: "chat", kind: "error", text: "无法开启新对话（Agent 服务不可用）" });
+        sendSignal({ type: "chat", kind: "error", text: "Cannot start a new conversation (Agent service unavailable)" });
         return;
       }
       const handle = await agentsSvc.create({
         sessionId: `pet-chat-${crypto.randomUUID()}`,
       });
       if (!handle?.agent || typeof handle.agent.followup !== "function") {
-        sendSignal({ type: "chat", kind: "error", text: "无法开启新对话" });
+        sendSignal({ type: "chat", kind: "error", text: "Cannot start a new conversation" });
         return;
       }
       chatTargetAgent = handle.agent;
@@ -817,7 +817,7 @@ export function apply(ctx) {
       sendSignal({ type: "chat", kind: "new-session", sessionId: handle.agent.id });
     } catch (err) {
       console.error("[dsh-desktop-pet] new-session failed:", err?.message ?? err);
-      sendSignal({ type: "chat", kind: "error", text: `开启新对话失败：${err?.message ?? err}` });
+      sendSignal({ type: "chat", kind: "error", text: `Failed to start a new conversation: ${err?.message ?? err}` });
     }
   };
   /** Is this session's conversation shown in the pet chat panel? The EXPLICIT
@@ -984,27 +984,27 @@ export function apply(ctx) {
 
   /** Friendly labels for the tool calls shown on the pet. */
   const TOOL_LABELS = {
-    read: "📖 读文件",
-    write: "✏️ 写文件",
-    edit: "🔧 编辑代码",
-    glob: "🔍 查找文件",
-    grep: "🔎 搜索内容",
-    pwsh: "⚡ 执行命令",
-    job_output: "📄 读取任务输出",
-    job_list: "📋 查看任务",
-    job_kill: "🛑 停止任务",
-    web_search: "🌐 网络搜索",
-    subagent: "🤖 派发子任务",
-    subagent_fork: "🤖 子代理接力",
-    todo_write: "📝 更新计划",
-    skill: "📚 加载技能",
-    ask_user_question: "❓ 向你提问",
-    read_image: "🖼️ 查看图片",
-    create_goal: "🎯 创建目标",
-    update_goal: "🎯 更新目标",
-    exit_plan_mode: "📐 提交方案",
-    workflow: "🚀 运行工作流",
-    ralph: "🔄 Ralph 迭代",
+    read: "📖 Read file",
+    write: "✏️ Write file",
+    edit: "🔧 Edit code",
+    glob: "🔍 Find files",
+    grep: "🔎 Search content",
+    pwsh: "⚡ Run command",
+    job_output: "📄 Read job output",
+    job_list: "📋 List jobs",
+    job_kill: "🛑 Stop job",
+    web_search: "🌐 Web search",
+    subagent: "🤖 Spawn subagent",
+    subagent_fork: "🤖 Subagent handoff",
+    todo_write: "📝 Update plan",
+    skill: "📚 Load skill",
+    ask_user_question: "❓ Ask a question",
+    read_image: "🖼️ View image",
+    create_goal: "🎯 Create goal",
+    update_goal: "🎯 Update goal",
+    exit_plan_mode: "📐 Submit plan",
+    workflow: "🚀 Run workflow",
+    ralph: "🔄 Ralph iteration",
   };
   const toolLabel = (name) => TOOL_LABELS[name] ?? `🛠️ ${name}`;
 
@@ -1036,15 +1036,15 @@ export function apply(ctx) {
     ctx.jobs.onJobDone((snapshot) => {
       if (!snapshot) return;
       if (snapshot.status === "completed") {
-        sendSignal({ type: "celebrate", label: snapshot.label ?? "任务完成" });
+        sendSignal({ type: "celebrate", label: snapshot.label ?? "Task complete" });
       } else if (snapshot.status === "failed") {
-        sendSignal({ type: "error", label: snapshot.label ?? "任务失败" });
+        sendSignal({ type: "error", label: snapshot.label ?? "Task failed" });
       }
     }),
 
     // LLM request errors (may retry later) -> startled.
     ctx.on("agent/request-error", () => {
-      sendSignal({ type: "error", label: "请求出错" });
+      sendSignal({ type: "error", label: "Request error" });
     }),
 
     // New session -> welcome.
@@ -1115,7 +1115,7 @@ export function apply(ctx) {
           sendSignal({ type: "chat", kind: "stats", ...chatStats, sessionId: sid });
         } else if (type === "tool/call") {
           // frosted tool card like the web UI: icon + name + target summary,
-          // an io-style 参数 (arguments) section, swept with a running
+          // an io-style arguments section, swept with a running
           // highlight until the matching tool/result
           const name = event?.data?.name;
           const callId = event?.data?.callId;
@@ -1168,7 +1168,7 @@ export function apply(ctx) {
           sendSignal({ type: "wait" });
         } else {
           waiting = false;
-          sendSignal({ type: "celebrate", label: "回合完成" });
+          sendSignal({ type: "celebrate", label: "Turn complete" });
         }
       } else if (type === "tool/call") {
         // The model asked for a tool — show it in the black progress box.

@@ -931,16 +931,16 @@ function refreshTrayTooltip() {
 function refreshTrayMenu() {
   if (!tray) return;
   const menu = Menu.buildFromTemplate([
-    { label: "显示 / 隐藏", click: () => toggleWindow() },
-    { label: "💬 对话", click: () => openChatPanel() },
-    { label: "回到右下角", click: () => {
+    { label: "Show / Hide", click: () => toggleWindow() },
+    { label: "💬 Chat", click: () => openChatPanel() },
+    { label: "Move to bottom-right", click: () => {
       if (!win) return;
       const pos = defaultPosition();
       win.setPosition(pos.x, pos.y);
     } },
     { type: "separator" },
     {
-      label: "置底模式（贴在桌面）",
+      label: "Bottom mode (stick to desktop)",
       type: "checkbox",
       checked: !!config.bottomMode,
       click: (item) => {
@@ -951,13 +951,13 @@ function refreshTrayMenu() {
       },
     },
     {
-      label: "鼠标穿透",
+      label: "Click-through",
       type: "checkbox",
       checked: clickThrough,
       click: (item) => setClickThrough(item.checked),
     },
     { type: "separator" },
-    { label: "退出", click: () => app.quit() },
+    { label: "Quit", click: () => app.quit() },
   ]);
   tray.setContextMenu(menu);
 }
@@ -987,7 +987,7 @@ let chatRestoreBounds = null;
 // The bounds actually applied when the panel opened (the left-side flip moves
 // the window, which must NOT count as a user drag when closing).
 let chatOpenBounds = null;
-// Bottom mode (贴桌面) would keep the enlarged window behind every other
+// Bottom mode (stuck to desktop) would keep the enlarged window behind every other
 // window, so the panel is temporarily lifted while the chat is open and the
 // pet is pushed back to the bottom when it closes.
 let chatLiftBottom = false;
@@ -996,7 +996,7 @@ let chatLiftBottom = false;
  *  open, the normal pet layout otherwise. Every setBounds that pins the
  *  width/height must go through this, or dragging the pet / a live config
  *  size change while chatting would collapse the enlarged window and clip
- *  the chat panel (the "对话框显示不全" bug). Uses the user-resizable panel
+ *  the chat panel (the "cut-off chat panel" bug). Uses the user-resizable panel
  *  size (config.chatWidth/chatHeight) so a resized panel survives reopening. */
 function currentWindowSize() {
   const size = Math.max(64, Math.min(256, Math.round(appliedWindow.size ?? config.size ?? DEFAULT_CONFIG.size)));
@@ -1164,11 +1164,11 @@ function openSettingsWindow() {
   }
   settingsWin = new BrowserWindow({
     width: 300,
-    // the panel (title + 角色/大小/透明度 + 3 checkboxes + paths + 完成) needs
+    // the panel (title + character/size/opacity + 3 checkboxes + paths + Done) needs
     // ~436 CSS px inside the content area; 500 outer leaves room for the
     // title bar on every platform (see #settings max-height as a safety net)
     height: 500,
-    title: "DSH Desktop Pet 设置",
+    title: "DSH Desktop Pet Settings",
     resizable: false,
     minimizable: false,
     maximizable: false,
@@ -1368,18 +1368,18 @@ function setupIpc() {
     if (win && !win.isDestroyed()) win.webContents.send("pet:menu-action", act);
   }
   const ACTION_DEFS = {
-    feed: { label: "🍗 喂食" },
-    play: { label: "🎾 玩耍" },
-    cheer: { label: "🎉 庆祝" },
-    chat: { label: "💬 对话" },
-    "task-on": { label: "📋 常驻任务进度" },
-    "task-off": { label: "📋 关闭任务进度" },
-    "detail-on": { label: "📋 详细进度" },
-    "detail-off": { label: "📋 简略进度" },
-    settings: { label: "⚙️ 设置" },
-    bottom: { label: "📌 桌面置底" },
-    pierce: { label: "🧊 鼠标穿透" },
-    quit: { label: "✕ 退出" },
+    feed: { label: "🍗 Feed" },
+    play: { label: "🎾 Play" },
+    cheer: { label: "🎉 Celebrate" },
+    chat: { label: "💬 Chat" },
+    "task-on": { label: "📋 Always show task progress" },
+    "task-off": { label: "📋 Hide task progress" },
+    "detail-on": { label: "📋 Detailed progress" },
+    "detail-off": { label: "📋 Brief progress" },
+    settings: { label: "⚙️ Settings" },
+    bottom: { label: "📌 Stay on desktop bottom" },
+    pierce: { label: "🧊 Click-through" },
+    quit: { label: "✕ Quit" },
   };
   ipcMain.on("pet:show-menu", (_e, pos) => {
     if (!win || win.isDestroyed()) return;
@@ -1525,7 +1525,7 @@ if (!gotLock) {
     if (process.platform === "darwin" && app.dock?.hide) app.dock.hide();
     loadConfig();
     importExternalCharacters(); // petdex pets -> userData/characters
-    syncBuiltinCharacters(); // whale-girl -> userData/characters (统一管理)
+    syncBuiltinCharacters(); // whale-girl -> userData/characters (single managed folder)
     registerPetProtocol();
     setupIpc();
     startSignalServer();

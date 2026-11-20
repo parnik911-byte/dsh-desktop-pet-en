@@ -60,7 +60,7 @@ async function sampleStates(label, seconds) {
 
   // --- 1. celebrate -> nap -> idle ---
   console.log("POST celebrate...");
-  console.log("signal status:", await postSignal({ type: "celebrate", label: "测试任务完成" }));
+  console.log("signal status:", await postSignal({ type: "celebrate", label: "Test task complete" }));
   await sleep(1000);
   const seq1 = await sampleStates("after celebrate", 40);
   const napSeen = seq1.some((s) => s.startsWith("sleep"));
@@ -69,7 +69,7 @@ async function sampleStates(label, seconds) {
 
   // --- 2. new task (exec) interrupts the nap ---
   console.log("POST celebrate #2...");
-  await postSignal({ type: "celebrate", label: "再来一个" });
+  await postSignal({ type: "celebrate", label: "Another one" });
   await sleep(6000); // should now be in the nap
   console.log("state before exec:", await cdpEval("stage.dataset.state"));
   console.log("POST sync exec=true...");

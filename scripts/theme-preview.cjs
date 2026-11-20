@@ -19,45 +19,45 @@ app.whenReady().then(async () => {
       const st = document.createElement("style");
       st.textContent = "*{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}";
       document.head.append(st);
-      // paint a realistic conversation with frosted tool cards (参数/输出 io)
+      // paint a realistic conversation with frosted tool cards (input/output io)
       const msgs = document.getElementById("chat-messages");
       msgs.innerHTML =
-        '<div class="chat-truncated-note">⏳ 该会话较早/较长，仅显示最近 250 条记录（已省略 480 条更早的）</div>' +
-        '<div class="chat-row chat-user"><div class="chat-bubble">鲸鱼娘，帮我把对话框做得像网页一样～</div></div>' +
+        '<div class="chat-truncated-note">⏳ This conversation is long/old — showing only the latest 250 messages (480 earlier ones omitted)</div>' +
+        '<div class="chat-row chat-user"><div class="chat-bubble">Whale Girl, make the chat box look like the web version~</div></div>' +
         // consecutive tool calls collapse into ONE group — head shows the latest
         '<div class="chat-tool-group collapsed">' +
           '<button type="button" class="chat-tool-group-head">' +
-            '<span class="chat-tool-group-count">🛠️ 工具调用 × 3</span>' +
-            '<span class="chat-tool-group-preview">⚡ 执行命令 · Get-Process | Select-Object -First 3</span>' +
+            '<span class="chat-tool-group-count">🛠️ Tool calls × 3</span>' +
+            '<span class="chat-tool-group-preview">⚡ Run command · Get-Process | Select-Object -First 3</span>' +
             '<span class="chat-tool-group-chevron">▸</span>' +
           '</button>' +
           '<div class="chat-tool-group-body">' +
             '<div class="chat-tool" data-call-id="c2">' +
-              '<div class="chat-tool-head"><span class="chat-tool-icon">🛠️</span><span class="chat-tool-name">🔎 搜索内容</span><span class="chat-tool-sep"></span><span class="chat-tool-summary">pattern: chat-bg in renderer</span></div>' +
-              '<div class="chat-tool-io"><span class="chat-tool-io-label">输入</span><code class="chat-tool-io-text">{"pattern":"chat-bg","path":"renderer"}</code></div>' +
-              '<div class="chat-tool-io"><span class="chat-tool-io-label">输出</span><code class="chat-tool-io-text">renderer/pet.css: chat-bg.webp 50% 0% / cover no-repeat</code></div>' +
+              '<div class="chat-tool-head"><span class="chat-tool-icon">🛠️</span><span class="chat-tool-name">🔎 Search content</span><span class="chat-tool-sep"></span><span class="chat-tool-summary">pattern: chat-bg in renderer</span></div>' +
+              '<div class="chat-tool-io"><span class="chat-tool-io-label">Input</span><code class="chat-tool-io-text">{"pattern":"chat-bg","path":"renderer"}</code></div>' +
+              '<div class="chat-tool-io"><span class="chat-tool-io-label">Output</span><code class="chat-tool-io-text">renderer/pet.css: chat-bg.webp 50% 0% / cover no-repeat</code></div>' +
             '</div>' +
             '<div class="chat-tool" data-call-id="c1">' +
-              '<div class="chat-tool-head"><span class="chat-tool-icon">🛠️</span><span class="chat-tool-name">📖 读文件</span><span class="chat-tool-sep"></span><span class="chat-tool-summary">renderer/pet.css</span></div>' +
-              '<div class="chat-tool-io"><span class="chat-tool-io-label">输入</span><code class="chat-tool-io-text">{"file_path":"renderer/pet.css"}</code></div>' +
+              '<div class="chat-tool-head"><span class="chat-tool-icon">🛠️</span><span class="chat-tool-name">📖 Read file</span><span class="chat-tool-sep"></span><span class="chat-tool-summary">renderer/pet.css</span></div>' +
+              '<div class="chat-tool-io"><span class="chat-tool-io-label">Input</span><code class="chat-tool-io-text">{"file_path":"renderer/pet.css"}</code></div>' +
             '</div>' +
             '<div class="chat-tool" data-running data-call-id="c0">' +
-              '<div class="chat-tool-head"><span class="chat-tool-icon">🛠️</span><span class="chat-tool-name">⚡ 执行命令</span><span class="chat-tool-sep"></span><span class="chat-tool-summary">Get-Process | Select-Object -First 3</span></div>' +
-              '<div class="chat-tool-io"><span class="chat-tool-io-label">输入</span><code class="chat-tool-io-text">{"command":"Get-Process | Select-Object -First 3"}</code></div>' +
+              '<div class="chat-tool-head"><span class="chat-tool-icon">🛠️</span><span class="chat-tool-name">⚡ Run command</span><span class="chat-tool-sep"></span><span class="chat-tool-summary">Get-Process | Select-Object -First 3</span></div>' +
+              '<div class="chat-tool-io"><span class="chat-tool-io-label">Input</span><code class="chat-tool-io-text">{"command":"Get-Process | Select-Object -First 3"}</code></div>' +
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div class="chat-row chat-assistant"><div class="chat-bubble">好的！连续的工具调用我会合并成一张小卡片，点一下就能展开看全部～ 🐳</div></div>' +
-        '<div class="chat-row chat-user"><div class="chat-bubble">太棒了，谢谢！</div></div>';
-      document.getElementById("chat-title-label").textContent = "🐳 与鲸鱼娘对话";
+        '<div class="chat-row chat-assistant"><div class="chat-bubble">OK! I merge consecutive tool calls into one small card — click it to expand~ 🐳</div></div>' +
+        '<div class="chat-row chat-user"><div class="chat-bubble">Awesome, thanks!</div></div>';
+      document.getElementById("chat-title-label").textContent = "🐳 Chat with Whale Girl";
       // whale-girl avatar in the title bar (first idle frame)
       const av = document.getElementById("chat-avatar");
       av.style.backgroundImage = "url('pet://assets/characters/whale-girl/idle.png')";
       av.style.backgroundSize = "300% 100%";
       av.style.backgroundPosition = "0 0";
       av.style.display = "inline-block";
-      document.getElementById("chat-stats").textContent = "轮次 3  ·  输入 1.2k tok · 输出 856 tok  ·  缓存命中 62%";
-      document.getElementById("chat-input").value = "再讲讲你的缎带…";
+      document.getElementById("chat-stats").textContent = "Turn 3  ·  Input 1.2k tok · Output 856 tok  ·  Cache hit 62%";
+      document.getElementById("chat-input").value = "Tell me about your ribbon…";
       return true;
     })()
   `);

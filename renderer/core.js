@@ -10,19 +10,19 @@
  */
 "use strict";
 
-/** Generic round-complete labels carry no information ("回合完成" fires on
+/** Generic round-complete labels carry no information ("Turn complete" fires on
  *  EVERY turn/end) and would flood the history — filtered out. */
-const GENERIC_TASK_LABELS = new Set(["回合完成", "任务完成", "任务失败", "请求出错"]);
+const GENERIC_TASK_LABELS = new Set(["Turn complete", "Task complete", "Task failed", "Request error"]);
 
 /** Phase display names for the caption box. */
 const TASK_PHASE_TEXT = {
-  idle: "😴 空闲中",
-  think: "💭 思考中…",
-  exec: "🛠️ 执行中",
-  wait: "🕐 等待中…",
-  done: "🎉 已完成",
-  error: "😱 出错了",
-  welcome: "👋 就绪",
+  idle: "😴 Idle",
+  think: "💭 Thinking…",
+  exec: "🛠️ Executing",
+  wait: "🕐 Waiting…",
+  done: "🎉 Done",
+  error: "😱 Error",
+  welcome: "👋 Ready",
 };
 
 /** [HH:MM] — same timestamp style as the original whale-girl's memory notes. */
@@ -160,12 +160,12 @@ function syncNextState(state, busy, flags) {
 // ---------------------------------------------------------------------------
 
 /** Seconds of silence (no signals) after which the pet reports the DSH link
- *  as offline. Mirrors the original whale-girl's "📡 离线…" presence cue. */
+ *  as offline. Mirrors the original whale-girl's "📡 Offline…" presence cue. */
 const OFFLINE_AFTER_MS = 15_000;
 
-/** Short status note for the current task (phase + tool, or 空闲中 / 💤). */
+/** Short status note for the current task (phase + tool, or Idle / 💤). */
 function taskNote(taskState, state) {
-  if (state === "sleep") return "💤 睡觉中";
+  if (state === "sleep") return "💤 Sleeping";
   if (taskState.phase !== "idle" && taskState.phase !== "welcome") {
     const phase = TASK_PHASE_TEXT[taskState.phase];
     const tool = taskState.tool
@@ -173,18 +173,18 @@ function taskNote(taskState, state) {
       : taskState.label
         ? String(taskState.label).slice(0, 10)
         : "";
-    const base = [phase ? phase.replace(/\s+$/, "") : null, tool].filter(Boolean).join(" ") || "工作中";
+    const base = [phase ? phase.replace(/\s+$/, "") : null, tool].filter(Boolean).join(" ") || "Working";
     // the actual target of the running tool (file path / query / command…)
     const detail =
       taskState.phase === "exec" && taskState.detail ? String(taskState.detail).slice(0, 22) : null;
     return detail ? `${base} · ${detail}` : base;
   }
-  return "空闲中";
+  return "Idle";
 }
 
 /** Hover summary — abbreviated (like the original whale-girl status card). */
 function hoverText(ctx) {
-  if (ctx.offline) return `[${fmtTime(ctx.now ?? Date.now())}] 📡 连接断开`;
+  if (ctx.offline) return `[${fmtTime(ctx.now ?? Date.now())}] 📡 Disconnected`;
   const { taskState, currentTodos, state, now } = ctx;
   const lines = [`[${fmtTime(now ?? Date.now())}] ${taskNote(taskState, state)}`];
   const done = (currentTodos ?? []).filter((t) => t.status === "completed").length;
@@ -207,9 +207,9 @@ function detailedText(ctx) {
   const { taskState, currentTodos, taskHistory, runHistory, state, now } = ctx;
   const lines = [];
   if (ctx.offline) {
-    lines.push(`[${fmtTime(now ?? Date.now())}] 📡 连接断开`);
+    lines.push(`[${fmtTime(now ?? Date.now())}] 📡 Disconnected`);
   } else if (state === "sleep") {
-    lines.push(`[${fmtTime(now ?? Date.now())}] 💤 睡觉中`);
+    lines.push(`[${fmtTime(now ?? Date.now())}] 💤 Sleeping`);
   } else if (taskState.phase !== "idle" && taskState.phase !== "welcome") {
     const head = [
       TASK_PHASE_TEXT[taskState.phase]?.replace(/\s+$/, ""),
@@ -226,19 +226,19 @@ function detailedText(ctx) {
     } else if (todos.length) {
       const doneItems = todos.filter((t) => t.status === "completed").map((t) => String(t.content).slice(0, 6));
       lines.push(
-        `📋 ${done}/${todos.length}${active ? " 正在" + String(active.content).slice(0, 8) : ""}${doneItems.length ? " ✅" + doneItems.slice(-2).join(" ✅") : ""}`,
+        `📋 ${done}/${todos.length}${active ? " " + String(active.content).slice(0, 8) : ""}${doneItems.length ? " ✅" + doneItems.slice(-2).join(" ✅") : ""}`,
       );
     } else if (taskState.label) {
       lines.push(`🛠️ ${String(taskState.label).slice(0, 22)}`);
     }
   } else {
-    lines.push(`[${fmtTime(now ?? Date.now())}] 空闲中`);
+    lines.push(`[${fmtTime(now ?? Date.now())}] Idle`);
     const runs = (runHistory ?? []).slice(-3).reverse();
     if (runs.length) {
-      lines.push(`🛠️ 已执行：${runs.join(" · ")}`);
+      lines.push(`🛠️ Executed: ${runs.join(" · ")}`);
     } else {
       const done = (taskHistory ?? []).slice(-2).reverse();
-      if (done.length) lines.push(`✅ 已完成：${done.join(" · ")}`);
+      if (done.length) lines.push(`✅ Completed: ${done.join(" · ")}`);
     }
   }
   return lines.join("\n");
@@ -249,11 +249,11 @@ function detailedText(ctx) {
 // ---------------------------------------------------------------------------
 
 const TITLES = [
-  { id: "first-feed", name: "初次投喂", when: (s) => s.feeds >= 1 },
-  { id: "regular", name: "常客", when: (s) => s.feeds >= 20 },
-  { id: "veteran", name: "资深伙伴", when: (s) => s.feeds >= 100 },
-  { id: "loyal", name: "常驻伙伴", when: (s) => s.activeMs >= 6 * 3_600_000 },
-  { id: "playful", name: "玩伴", when: (s) => s.plays >= 30 },
+  { id: "first-feed", name: "First Feed", when: (s) => s.feeds >= 1 },
+  { id: "regular", name: "Regular", when: (s) => s.feeds >= 20 },
+  { id: "veteran", name: "Veteran", when: (s) => s.feeds >= 100 },
+  { id: "loyal", name: "Loyal Companion", when: (s) => s.activeMs >= 6 * 3_600_000 },
+  { id: "playful", name: "Playmate", when: (s) => s.plays >= 30 },
 ];
 
 const DEFAULT_LEDGER = { xp: 0, feeds: 0, plays: 0, activeMs: 0, firstSeenAt: Date.now(), titles: [] };

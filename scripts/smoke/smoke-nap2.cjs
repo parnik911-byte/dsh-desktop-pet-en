@@ -23,7 +23,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await fetch("http://127.0.0.1:43991/signal", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ type: "celebrate", label: "完整打盹测试" }),
+    body: JSON.stringify({ type: "celebrate", label: "Full nap cycle test" }),
   });
   const seq = [];
   for (let i = 0; i < 22; i++) {

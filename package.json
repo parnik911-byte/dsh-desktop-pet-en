@@ -1,7 +1,7 @@
 {
   "name": "@asahimoon/dsh-desktop-pet",
   "version": "0.2.0",
-  "description": "DSH 桌面宠物（鲸鱼娘）— 透明置顶悬浮窗 + Agent 状态联动 + 热配置 + 多角色兼容（Codex/petdex）。安装：dsh plugin --profile web add @asahimoon/dsh-desktop-pet；独立运行：npx electron main.js；打包 exe：npm run dist",
+  "description": "DSH desktop pet (Whale Girl) — transparent always-on-top floating window + Agent state sync + hot config + multi-character support (Codex/petdex). Install: dsh plugin --profile web add @asahimoon/dsh-desktop-pet; run standalone: npx electron main.js; package exe: npm run dist",
   "main": "index.mjs",
   "exports": {
     ".": "./index.mjs",
@@ -82,7 +82,6 @@
     "productName": "DSH Desktop Pet",
     "compression": "maximum",
     "electronLanguages": [
-      "zh-CN",
       "en-US"
     ],
     "directories": {

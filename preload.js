@@ -71,7 +71,7 @@ contextBridge.exposeInMainWorld("petAPI", {
   /** Toggle maximize: fill the work area beside the pet / restore the
    *  previous size. */
   chatMaximize: () => ipcRenderer.send("pet:chat-maximize"),
-  /** Follow the maximize state so the ⛶ button can show 最大化/还原. */
+  /** Follow the maximize state so the ⛶ button can show maximize/restore. */
   onChatMaximized: (cb) => {
     ipcRenderer.on("pet:chat-maximized", (_event, payload) => cb(payload));
   },

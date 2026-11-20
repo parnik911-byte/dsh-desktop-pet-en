@@ -23,20 +23,20 @@ describe("hoverText (brief)", () => {
   it("shows time + status, no growth stats", () => {
     const ctx = {
       ...base,
-      taskState: { phase: "exec", tool: "pwsh", label: "测试", todos: [] },
+      taskState: { phase: "exec", tool: "pwsh", label: "Test", todos: [] },
       currentTodos: [
-        { content: "甲", status: "completed" },
-        { content: "乙", status: "in_progress" },
+        { content: "A", status: "completed" },
+        { content: "B", status: "in_progress" },
       ],
     };
     const text = C.hoverText(ctx);
-    expect(text).toBe("[23:45] 🛠️ 执行中 pwsh\n📋 1/2 · 乙");
-    expect(text).not.toMatch(/Lv\.|投喂|玩耍|陪伴/);
+    expect(text).toBe("[23:45] 🛠️ Executing pwsh\n📋 1/2 · B");
+    expect(text).not.toMatch(/Lv\.|Feed|Play|Companion/);
   });
 
-  it("idle shows 空闲中, sleep shows 💤", () => {
-    expect(C.hoverText(base)).toBe("[23:45] 空闲中");
-    expect(C.hoverText({ ...base, state: "sleep" })).toBe("[23:45] 💤 睡觉中");
+  it("idle shows Idle, sleep shows 💤", () => {
+    expect(C.hoverText(base)).toBe("[23:45] Idle");
+    expect(C.hoverText({ ...base, state: "sleep" })).toBe("[23:45] 💤 Sleeping");
   });
 });
 
@@ -44,24 +44,24 @@ describe("detailedText", () => {
   it("shows current tool + progress + completed steps", () => {
     const text = C.detailedText({
       ...base,
-      taskState: { phase: "exec", tool: "pwsh", label: "运行", todos: [] },
+      taskState: { phase: "exec", tool: "pwsh", label: "Running", todos: [] },
       currentTodos: [
-        { content: "调研方案", status: "completed" },
-        { content: "编写代码", status: "completed" },
-        { content: "验收", status: "in_progress" },
+        { content: "Research", status: "completed" },
+        { content: "Coding", status: "completed" },
+        { content: "Verify", status: "in_progress" },
       ],
     });
-    expect(text).toContain("[23:45] 🛠️ 执行中 · pwsh");
-    expect(text).toContain("📋 2/3 正在验收");
+    expect(text).toContain("[23:45] 🛠️ Executing · pwsh");
+    expect(text).toContain("📋 2/3 Verify");
     expect(text).toContain("✅");
   });
 
   it("shows the tool's actual target (file path) in the detailed view", () => {
     const text = C.detailedText({
       ...base,
-      taskState: { phase: "exec", tool: "read", label: "📖 读文件", detail: "F:\\AI_workspace\\src\\main.js", todos: [] },
+      taskState: { phase: "exec", tool: "read", label: "📖 Read file", detail: "F:\\AI_workspace\\src\\main.js", todos: [] },
     });
-    expect(text).toContain("[23:45] 🛠️ 执行中 · read");
+    expect(text).toContain("[23:45] 🛠️ Executing · read");
     expect(text).toContain("📎 F:\\AI_workspace\\src\\main.js");
   });
 
@@ -70,7 +70,7 @@ describe("detailedText", () => {
       ...base,
       taskState: { phase: "exec", tool: "pwsh", label: "", detail: "npm test", todos: [] },
     });
-    expect(text).toBe("[23:45] 🛠️ 执行中 pwsh · npm test");
+    expect(text).toBe("[23:45] 🛠️ Executing pwsh · npm test");
   });
 
   it("stale detail is not shown outside the exec phase", () => {
@@ -84,15 +84,15 @@ describe("detailedText", () => {
 
   it("idle shows the executed tools, fallback to completed tasks", () => {
     expect(C.detailedText({ ...base, runHistory: ["pwsh", "read_file"] })).toBe(
-      "[23:45] 空闲中\n🛠️ 已执行：read_file · pwsh",
+      "[23:45] Idle\n🛠️ Executed: read_file · pwsh",
     );
-    expect(C.detailedText({ ...base, taskHistory: ["修复打包"] })).toBe(
-      "[23:45] 空闲中\n✅ 已完成：修复打包",
+    expect(C.detailedText({ ...base, taskHistory: ["Fix the build"] })).toBe(
+      "[23:45] Idle\n✅ Completed: Fix the build",
     );
   });
 
   it("sleep note", () => {
-    expect(C.detailedText({ ...base, state: "sleep" })).toBe("[23:45] 💤 睡觉中");
+    expect(C.detailedText({ ...base, state: "sleep" })).toBe("[23:45] 💤 Sleeping");
   });
 });
 

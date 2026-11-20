@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en-US">
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' pet:; style-src 'self' 'unsafe-inline'; img-src 'self' pet: data:; script-src 'self'" />
@@ -14,45 +14,45 @@
     <div id="bubble" class="hidden"></div>
     <div id="statusbar" class="hidden"></div>
     <div id="settings" class="hidden" role="dialog">
-      <div class="settings-title">⚙️ 设置</div>
-      <label>角色 <select id="character-select"></select></label>
-      <label>大小 <span id="size-value"></span>px
+      <div class="settings-title">⚙️ Settings</div>
+      <label>Character <select id="character-select"></select></label>
+      <label>Size <span id="size-value"></span>px
         <input id="size-range" type="range" min="64" max="256" step="4" />
       </label>
-      <label>透明度 <span id="opacity-value"></span>
+      <label>Opacity <span id="opacity-value"></span>
         <input id="opacity-range" type="range" min="20" max="100" step="2" />
       </label>
-      <label class="check-row"><input id="task-bar-persistent" type="checkbox" /> 常驻显示任务进度</label>
-      <label class="check-row"><input id="task-bar-detailed" type="checkbox" /> 详细进度（显示最近完成的任务）</label>
-      <label class="check-row"><input id="hide-when-idle" type="checkbox" /> 空闲时自动隐藏</label>
+      <label class="check-row"><input id="task-bar-persistent" type="checkbox" /> Always show task progress</label>
+      <label class="check-row"><input id="task-bar-detailed" type="checkbox" /> Detailed progress (show recently completed tasks)</label>
+      <label class="check-row"><input id="hide-when-idle" type="checkbox" /> Hide automatically when idle</label>
       <div class="paths">
         <div id="paths-info" class="paths-info"></div>
-        <button id="open-characters">📂 角色文件夹</button>
-        <button id="open-config">📂 配置文件</button>
+        <button id="open-characters">📂 Character folder</button>
+        <button id="open-config">📂 Config file</button>
       </div>
-      <button id="settings-close">完成</button>
+      <button id="settings-close">Done</button>
     </div>
-    <div id="chat" class="hidden" role="dialog" aria-label="对话">
+    <div id="chat" class="hidden" role="dialog" aria-label="Chat">
       <div class="chat-title">
-        <button id="chat-session-picker" class="chat-session-btn" title="选择历史会话">🗂️</button>
-        <button id="chat-new" class="chat-new-btn" title="开启新对话">➕</button>
+        <button id="chat-session-picker" class="chat-session-btn" title="Pick a chat history">🗂️</button>
+        <button id="chat-new" class="chat-new-btn" title="Start a new conversation">➕</button>
         <span id="chat-avatar" class="chat-avatar" aria-hidden="true"></span>
-        <span id="chat-title-label">🐳 与鲸鱼娘对话</span>
-        <button id="chat-maximize" class="chat-maximize-btn" title="最大化 / 还原面板大小">⛶</button>
-        <button id="chat-close" aria-label="关闭">✕</button>
+        <span id="chat-title-label">🐳 Chat with Whale Girl</span>
+        <button id="chat-maximize" class="chat-maximize-btn" title="Maximize / Restore panel size">⛶</button>
+        <button id="chat-close" aria-label="Close">✕</button>
       </div>
       <div id="chat-sessions" class="chat-sessions hidden"></div>
       <div id="chat-messages" class="chat-messages"></div>
       <div class="chat-input-row">
-        <textarea id="chat-input" rows="2" placeholder="输入消息，Enter 发送，Shift+Enter 换行…"></textarea>
-        <button id="chat-send">发送</button>
+        <textarea id="chat-input" rows="2" placeholder="Type a message, Enter to send, Shift+Enter for a new line…"></textarea>
+        <button id="chat-send">Send</button>
       </div>
       <div id="chat-stats" class="chat-stats"></div>
       <div id="chat-hint" class="chat-hint"></div>
       <div class="chat-resize" aria-hidden="true">
-        <div class="chat-resize-edge chat-resize-left" title="拖动调整宽度"></div>
-        <div class="chat-resize-edge chat-resize-right" title="拖动调整宽度"></div>
-        <div class="chat-resize-bottom" title="拖动调整高度"></div>
+        <div class="chat-resize-edge chat-resize-left" title="Drag to resize width"></div>
+        <div class="chat-resize-edge chat-resize-right" title="Drag to resize width"></div>
+        <div class="chat-resize-bottom" title="Drag to resize height"></div>
       </div>
     </div>
   </div>

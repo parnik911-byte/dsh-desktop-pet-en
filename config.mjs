@@ -85,6 +85,6 @@ export function buildSchema() {
 export function validateConfig(value) {
   const w = value?.walk;
   if (w && w.intervalMs < w.durationMs * 2) {
-    throw new Error("walk.intervalMs 应至少为 durationMs 的两倍");
+    throw new Error("walk.intervalMs must be at least twice durationMs");
   }
 }

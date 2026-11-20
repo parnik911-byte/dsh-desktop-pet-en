@@ -547,40 +547,40 @@ function onMenuAction(act) {
       ledger.feeds++;
       C.addXp(ledger, XP_FEED);
       chain(hasDistinct("eat") ? "eat" : "celebrate", 1600, () => chain("joy", 1400, toIdle));
-      bubble("🍗 好吃~ 谢谢你！");
+      bubble("🍗 Yummy~ Thank you!");
       break;
     case "play":
       busy = true;
       ledger.plays++;
       C.addXp(ledger, XP_PLAY);
       chain(hasDistinct("play") ? "play" : "celebrate", 1600, () => chain("joy", 1400, toIdle));
-      bubble("🎾 接住啦！");
+      bubble("🎾 Caught it!");
       break;
     case "cheer":
       busy = true;
       chain("celebrate", 2000, toIdle);
-      bubble("🎉 加油！");
+      bubble("🎉 Go for it!");
       break;
     case "task-on":
     case "task-off":
       // toggle the black task-progress box under the pet
       window.petAPI.setConfig({ taskBarPersistent: act === "task-on" });
-      bubble(act === "task-on" ? "📋 任务进度已常驻显示" : "📋 任务进度已隐藏");
+      bubble(act === "task-on" ? "📋 Task progress pinned on screen" : "📋 Task progress hidden");
       break;
     case "detail-on":
     case "detail-off":
       // toggle the detailed persistent progress (completed tasks etc.)
       window.petAPI.setConfig({ taskBarDetailed: act === "detail-on" });
-      bubble(act === "detail-on" ? "📋 已切换详细进度" : "📋 已切换简略进度");
+      bubble(act === "detail-on" ? "📋 Switched to detailed progress" : "📋 Switched to brief progress");
       break;
     case "bottom":
       CONFIG = { ...CONFIG, bottomMode: !CONFIG.bottomMode };
       window.petAPI.setBottomMode(CONFIG.bottomMode);
-      bubble(CONFIG.bottomMode ? "📌 已置底（贴桌面）" : "💫 已恢复置顶");
+      bubble(CONFIG.bottomMode ? "📌 Bottom mode on (stuck to desktop)" : "💫 Back on top");
       break;
     case "pierce":
       togglePierce();
-      bubble(pierceMode ? "🧊 已进入鼠标穿透（托盘菜单恢复）" : "💫 已恢复交互");
+      bubble(pierceMode ? "🧊 Click-through on (restore from tray menu)" : "💫 Interaction restored");
       break;
     case "quit":
       window.petAPI.quit();
@@ -628,7 +628,7 @@ characterSelect.addEventListener("change", () => {
   const id = characterSelect.value;
   if (!id || id === CHARACTER_ID) return;
   window.petAPI.setConfig({ character: id });
-  bubble(`🎭 切换角色：${ROLES.find((r) => r.id === id)?.name ?? id}`);
+  bubble(`🎭 Character switched to: ${ROLES.find((r) => r.id === id)?.name ?? id}`);
 });
 sizeRange.addEventListener("input", () => {
   const v = Number(sizeRange.value);
@@ -853,7 +853,7 @@ function tickIdle() {
   if (Date.now() - lastInteractAt >= CONFIG.sleepAfterMs) {
     naturalSleep = true;
     setState("sleep");
-    bubble("💤 打个盹…");
+    bubble("💤 Taking a nap…");
     if (CONFIG.hideWhenIdle) hidePet(); // long-quiet sleep -> hide the window
   }
 }
@@ -931,7 +931,7 @@ function maybeWalk() {
 // left-click reaction (the menu itself is right-click only): wake from sleep,
 // otherwise a quick happy bounce + a random line. Guarded against the click
 // that fires right after a real drag.
-const CLICK_LINES = ["呀！", "嘿嘿~", "♪", "在呢在呢！", "戳我干嘛~", "好耶！"];
+const CLICK_LINES = ["Hey!", "Hehe~", "♪", "I'm here!", "Why poke me~", "Yay!"];
 petEl.addEventListener("click", (e) => {
   if (SETTINGS_MODE) return;
   if (pierceMode) return;
@@ -943,7 +943,7 @@ petEl.addEventListener("click", (e) => {
   }
   if (state === "sleep") {
     setState("wake", { onEnd: toIdle });
-    bubble("😊 醒啦！");
+    bubble("😊 I'm awake!");
     return;
   }
   if (busy || state === "drag" || state === "walk") return;
@@ -1014,7 +1014,7 @@ function handleSignal(signal) {
       if (!busy && (state === "idle" || state === "sleep" || state === "think" || state === "walk")) {
         setState("working");
       }
-      bubble(signal.label ?? `🛠️ ${signal.tool ?? "工具"}`);
+      bubble(signal.label ?? `🛠️ ${signal.tool ?? "Tool"}`);
       break;
     case "tool-done":
       if (state === "working") setState("think");
@@ -1029,14 +1029,14 @@ function handleSignal(signal) {
         // whale-girl), then wakes back to idle on its own — or immediately
         // when a new agent task arrives (see the sync exec/think branches)
         chain("sleep", POST_WORK_NAP_MS, toIdle);
-        bubble("💤 干完活，睡一小会儿~");
+        bubble("💤 Work done, nap time~");
       });
-      bubble(`🎉 ${signal.label ?? "任务完成"}！`);
+      bubble(`🎉 ${signal.label ?? "Task complete"}!`);
       break;
     case "error":
       busy = true;
       setState("error", { onEnd: () => chain("disappointed", 1600, toIdle) });
-      bubble(`😱 ${signal.label ?? "出错了"}`);
+      bubble(`😱 ${signal.label ?? "Something went wrong"}`);
       break;
     case "think":
       if (!busy && (state === "idle" || state === "sleep" || state === "walk")) {
@@ -1087,7 +1087,7 @@ setInterval(() => {
   if (SETTINGS_MODE || CHAT_MODE) return;
   ledger.activeMs += TICK_ACTIVE_MS;
   const unlocked = C.checkTitles(ledger); // returns newly unlocked title names
-  if (unlocked.length) bubble(`🏅 获得称号：${unlocked.join("、")}`);
+  if (unlocked.length) bubble(`🏅 New title: ${unlocked.join(", ")}`);
   saveLedgerSoon();
 }, TICK_ACTIVE_MS);
 
@@ -1143,7 +1143,7 @@ async function boot() {
     try {
       const paths = await window.petAPI.getPaths();
       const info = document.getElementById("paths-info");
-      if (info) info.textContent = `角色文件夹：${paths?.characters ?? "—"}`;
+      if (info) info.textContent = `Character folder: ${paths?.characters ?? "—"}`;
       document.getElementById("open-characters")?.addEventListener("click", () => window.petAPI.openPath("characters"));
       document.getElementById("open-config")?.addEventListener("click", () => window.petAPI.openPath("config"));
     } catch {
@@ -1201,7 +1201,7 @@ async function boot() {
     afterMs: 2600, // welcome art is a loop — move on to idle on its own
     onEnd: () => {
       if (Date.now() - (ledger.firstSeenAt || Date.now()) < 60_000) {
-        bubble("👋 你好呀，我是鲸鱼娘！");
+        bubble("👋 Hi! I'm Whale Girl!");
       }
       toIdle();
     },
@@ -1212,13 +1212,13 @@ async function boot() {
   setInterval(() => saveLedgerSoon(), 30000);
 
   // The in-pet-window chat panel initializes with the pet window; it stays
-  // hidden until the user opens it (tray / right-click「💬 对话」).
+  // hidden until the user opens it (tray / right-click "💬 Chat").
   bootChat();
 }
 
 // ---------------------------------------------------------------------------
 // chat panel — lives INSIDE the pet window, beside the model. Opening the
-// panel (tray/right-click「💬 对话」) enlarges the window via pet:chat-panel;
+// panel (tray/right-click "💬 Chat") enlarges the window via pet:chat-panel;
 // the renderer lays the panel out in the grown area. It shows a session
 // picker (history), the transcript of the chosen session, an input box, and
 // streams assistant replies as chat signals (kind: user / delta / assistant /
@@ -1255,7 +1255,7 @@ function bootChat() {
   //   1. staleness — only a `history` for the session the user is waiting for
   //      (or, in mirror mode, ANY session) is applied, so a slow/stale
   //      response can never clobber a newer view;
-  //   2. a watchdog — if the plugin never answers, the "⏳ 正在加载…" spinner
+  //   2. a watchdog — if the plugin never answers, the "⏳ Loading…" spinner
   //      is replaced by a retry button instead of hanging forever. The plugin
   //      reads live sessions from memory (instant) and waits for cold-log
   //      reads like the web UI does, so 30s is a generous dead-man switch.
@@ -1277,13 +1277,13 @@ function bootChat() {
    *  re-arms the watchdog and re-issues the same request. */
   const showLoadTimeout = (id, send) => {
     const label = document.createElement("span");
-    label.textContent = "⏳ 加载超时，";
+    label.textContent = "⏳ Loading timed out, ";
     const retryBtn = document.createElement("button");
     retryBtn.type = "button";
     retryBtn.className = "chat-retry-btn";
-    retryBtn.textContent = "点击重试";
+    retryBtn.textContent = "Click to retry";
     retryBtn.addEventListener("click", () => {
-      showPlaceholder("⏳ 正在加载历史对话…");
+      showPlaceholder("⏳ Loading chat history…");
       armHistoryWatchdog(id, send); // re-arms the watchdog and re-sends
     });
     messagesEl.innerHTML = "";
@@ -1291,7 +1291,7 @@ function bootChat() {
     box.className = "chat-session-empty";
     box.append(label, retryBtn);
     messagesEl.append(box);
-    setHint("⚠️ 历史记录加载超时，请确认 DSH 插件已连接");
+    setHint("⚠️ History load timed out — make sure the DSH plugin is connected");
   };
 
   /** Arm the history-load watchdog, then issue the request.
@@ -1308,7 +1308,7 @@ function bootChat() {
     send();
   };
 
-  // If the plugin bridge is down, a sent message would hang "Agent 思考中…"
+  // If the plugin bridge is down, a sent message would hang "Agent is thinking…"
   // forever (the enqueue succeeds but nobody ever replies). Watchdog: any chat
   // traffic while waiting resets it; silence past the timeout unblocks input.
   const SEND_TIMEOUT_MS = 90_000;
@@ -1321,7 +1321,7 @@ function bootChat() {
       assistantBubble = null;
       if (inputEl) inputEl.disabled = false;
       if (sendBtn) sendBtn.disabled = false;
-      setHint("⚠️ 长时间未收到回复，请确认 DSH 插件已连接");
+      setHint("⚠️ No reply for a while — make sure the DSH plugin is connected");
     }, SEND_TIMEOUT_MS);
   };
 
@@ -1350,7 +1350,7 @@ function bootChat() {
     if (!group) return;
     const cards = [...group.querySelectorAll(".chat-tool-group-body > .chat-tool")];
     const countEl = group.querySelector(".chat-tool-group-count");
-    if (countEl) countEl.textContent = `🛠️ 工具调用 × ${cards.length}`;
+    if (countEl) countEl.textContent = `🛠️ Tool calls × ${cards.length}`;
     const last = cards[cards.length - 1];
     const previewEl = group.querySelector(".chat-tool-group-preview");
     if (previewEl) {
@@ -1425,7 +1425,7 @@ function bootChat() {
     if (items.length > RENDER_BATCH) {
       const loading = document.createElement("div");
       loading.className = "chat-session-empty chat-history-loading";
-      loading.textContent = "⏳ 正在渲染历史对话…";
+      loading.textContent = "⏳ Rendering chat history…";
       messagesEl.append(loading);
     }
     const token = ++renderToken;
@@ -1487,19 +1487,19 @@ function bootChat() {
       if (truncated && truncated.skipped > 0) {
         const note = document.createElement("div");
         note.className = "chat-truncated-note";
-        note.textContent = `⏳ 该会话较早/较长，仅显示最近 ${history.length} 条记录（已省略 ${truncated.skipped} 条更早的）`;
+        note.textContent = `⏳ This conversation is long/old — showing only the latest ${history.length} messages (${truncated.skipped} earlier ones omitted)`;
         messagesEl.prepend(note);
       }
       if (!history.length) {
         const empty = document.createElement("div");
         empty.className = "chat-session-empty";
-        empty.textContent = "该会话暂无消息记录";
+        empty.textContent = "No messages in this conversation yet";
         messagesEl.append(empty);
       }
     });
   };
 
-  /** Pretty-print a JSON string for the card's 输入 section (fallback to the
+  /** Pretty-print a JSON string for the card's Input section (fallback to the
    *  raw text when it is truncated or not valid JSON). */
   const prettyJson = (json) => {
     if (!json) return "";
@@ -1511,7 +1511,7 @@ function bootChat() {
   };
 
   /** Append (or update) a frosted web-style tool card: icon + name + target
-   *  summary, an io-style 输入 section with the arguments, and a running sweep;
+   *  summary, an io-style Input section with the arguments, and a running sweep;
    *  finished via finishToolCard(). Re-sent tool signals for the same callId
    *  update the existing card instead of stacking duplicates.
    *
@@ -1555,7 +1555,7 @@ function bootChat() {
       icon.textContent = "🛠️";
       const name = document.createElement("span");
       name.className = "chat-tool-name";
-      name.textContent = s.label ?? s.tool ?? "工具";
+      name.textContent = s.label ?? s.tool ?? "Tool";
       const sep = document.createElement("span");
       sep.className = "chat-tool-sep";
       const summary = document.createElement("span");
@@ -1576,7 +1576,7 @@ function bootChat() {
       if (summary && s.summary) summary.textContent = s.summary;
     }
     if (s.argsText) {
-      // replace any previous 输入 section with the freshest arguments
+      // replace any previous Input section with the freshest arguments
       const old = card.querySelector(".chat-tool-io[data-kind='in']");
       if (old) old.remove();
       const io = document.createElement("div");
@@ -1584,7 +1584,7 @@ function bootChat() {
       io.dataset.kind = "in";
       const label = document.createElement("span");
       label.className = "chat-tool-io-label";
-      label.textContent = "输入";
+      label.textContent = "Input";
       const body = document.createElement("code");
       body.className = "chat-tool-io-text";
       body.textContent = prettyJson(s.argsText);
@@ -1613,7 +1613,7 @@ function bootChat() {
       io.dataset.kind = "out";
       const label = document.createElement("span");
       label.className = "chat-tool-io-label";
-      label.textContent = "输出";
+      label.textContent = "Output";
       const body = document.createElement("code");
       body.className = "chat-tool-io-text";
       if (s.isError) body.dataset.error = "";
@@ -1631,13 +1631,13 @@ function bootChat() {
     if (!sessions.length) {
       const empty = document.createElement("div");
       empty.className = "chat-session-empty";
-      empty.textContent = "暂无历史会话";
+      empty.textContent = "No chat history yet";
       sessionsEl.append(empty);
       return;
     }
     const head = document.createElement("div");
     head.className = "chat-sessions-head";
-    head.textContent = `历史会话 · ${sessions.length}`;
+    head.textContent = `Chat history · ${sessions.length}`;
     sessionsEl.append(head);
     for (const s of sessions) {
       const row = document.createElement("button");
@@ -1649,7 +1649,7 @@ function bootChat() {
       const meta = document.createElement("div");
       meta.className = "chat-session-meta";
       if (s.createdAt) {
-        meta.textContent = new Date(s.createdAt).toLocaleString("zh-CN", {
+        meta.textContent = new Date(s.createdAt).toLocaleString("en-US", {
           month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit",
         });
       }
@@ -1663,13 +1663,13 @@ function bootChat() {
       }
       row.addEventListener("click", () => {
         currentSessionId = s.id;
-        titleLabel.textContent = s.title?.trim() ? s.title : "🐳 与鲸鱼娘对话";
+        titleLabel.textContent = s.title?.trim() ? s.title : "🐳 Chat with Whale Girl";
         sessionsEl.classList.add("hidden");
         renderSessions();
         // switching sessions: drop any in-flight streaming bubble and show a
         // loading placeholder so "history not loaded yet" is never ambiguous
         assistantBubble = null;
-        showPlaceholder("⏳ 正在加载历史对话…");
+        showPlaceholder("⏳ Loading chat history…");
         setHint("");
         armHistoryWatchdog(s.id, () => window.petAPI.selectSession(s.id));
       });
@@ -1727,8 +1727,8 @@ function bootChat() {
       // not yank the keyboard away from the browser
       if (wasBusyInput && inputEl) inputEl.focus();
     } else if (kind === "error") {
-      history.push({ role: "assistant", text: `⚠️ ${signal.text ?? "出错了"}` });
-      appendRow("assistant", `⚠️ ${signal.text ?? "出错了"}`);
+      history.push({ role: "assistant", text: `⚠️ ${signal.text ?? "Something went wrong"}` });
+      appendRow("assistant", `⚠️ ${signal.text ?? "Something went wrong"}`);
       assistantBubble = null;
       busy = false;
       setHint("");
@@ -1762,11 +1762,11 @@ function bootChat() {
       messagesEl.innerHTML = "";
       const welcome = document.createElement("div");
       welcome.className = "chat-session-empty";
-      welcome.textContent = "🐳 新对话已开启，来说点什么吧！";
+      welcome.textContent = "🐳 New conversation started — say something!";
       messagesEl.append(welcome);
-      titleLabel.textContent = "🐳 与鲸鱼娘对话";
+      titleLabel.textContent = "🐳 Chat with Whale Girl";
       if (statsEl) statsEl.textContent = "";
-      setHint("💬 输入消息开始新的对话");
+      setHint("💬 Type a message to start a new conversation");
       if (inputEl) inputEl.focus();
     } else if (kind === "history") {
       const nextId = signal.sessionId ?? null;
@@ -1787,7 +1787,7 @@ function bootChat() {
       if (nextId === null) {
         // the plugin has nothing to mirror yet — keep the panel clean
         messagesEl.innerHTML = "";
-        setHint("💬 先在网页中打开一个会话，这里会自动跟随");
+        setHint("💬 Open a session in the web UI first — this will follow automatically");
         return;
       }
       showHistory(signal.rows, signal.truncated);
@@ -1802,7 +1802,7 @@ function bootChat() {
       if (inputEl) inputEl.disabled = false;
       if (sendBtn) sendBtn.disabled = false;
       if (signal.title) titleLabel.textContent = signal.title;
-      setHint(signal.follow ? "📡 正在跟随网页会话，输入消息会发送到该会话" : "💬 在下方输入消息继续这个对话");
+      setHint(signal.follow ? "📡 Following the web session — messages go to that conversation" : "💬 Type below to continue this conversation");
       // focus only for user-initiated loads (picker / panel open) — a web-side
       // follow switch must not steal focus from the browser
       if (!signal.follow && inputEl) inputEl.focus();
@@ -1821,19 +1821,19 @@ function bootChat() {
     return String(n);
   };
 
-  /** Render the 轮次 / token / 缓存命中 readout under the input (web-style). */
+  /** Render the Turn / token / Cache hit readout under the input (web-style). */
   const renderChatStats = (s) => {
     if (!statsEl) return;
     const parts = [];
-    if (s.turn) parts.push(`轮次 ${s.turn}`);
+    if (s.turn) parts.push(`Turn ${s.turn}`);
     const input = s.inputTokens ?? 0;
     const output = s.outputTokens ?? 0;
     const cacheRead = s.cacheReadTokens ?? 0;
     const billed = input + cacheRead + (s.cacheWriteTokens ?? 0);
     if (billed > 0 || output > 0) {
-      parts.push(`输入 ${fmtTokens(input)} tok · 输出 ${fmtTokens(output)} tok`);
+      parts.push(`Input ${fmtTokens(input)} tok · Output ${fmtTokens(output)} tok`);
       if (cacheRead > 0 && billed > 0) {
-        parts.push(`缓存命中 ${Math.round((cacheRead / billed) * 100)}%`);
+        parts.push(`Cache hit ${Math.round((cacheRead / billed) * 100)}%`);
       }
     }
     statsEl.textContent = parts.join("  ·  ");
@@ -1852,11 +1852,11 @@ function bootChat() {
     assistantBubble = null;
     if (inputEl) inputEl.disabled = true;
     if (sendBtn) sendBtn.disabled = true;
-    setHint("⏳ Agent 思考中…");
+    setHint("⏳ Agent is thinking…");
     armSendWatchdog(); // unblock the input if the plugin bridge never answers
     const result = await window.petAPI.sendChat(text);
     if (!result?.ok) {
-      const errText = result?.error ?? "无法连接 Agent（插件桥未启动）";
+      const errText = result?.error ?? "Cannot connect to the Agent (plugin bridge is not running)";
       history.push({ role: "assistant", text: `⚠️ ${errText}` });
       appendRow("assistant", `⚠️ ${errText}`);
       busy = false;
@@ -1905,11 +1905,11 @@ function bootChat() {
       messagesEl.innerHTML = "";
       const welcome = document.createElement("div");
       welcome.className = "chat-session-empty";
-      welcome.textContent = "🐳 点 🗂️ 选择历史会话，或点 ➕ 开启新对话";
+      welcome.textContent = "🐳 Click 🗂️ to pick a history session, or ➕ to start a new conversation";
       messagesEl.append(welcome);
-      titleLabel.textContent = "🐳 与鲸鱼娘对话";
+      titleLabel.textContent = "🐳 Chat with Whale Girl";
       if (statsEl) statsEl.textContent = "";
-      setHint("💬 先选择一个会话或开启新对话，再开始聊天");
+      setHint("💬 Pick a session or start a new conversation first");
       // Pre-fetch the session list in the background so 🗂️ opens populated,
       // but do NOT auto-reveal the picker on first open — the user wants a
       // clean blank panel until they explicitly click 🗂️ to browse history.
@@ -1978,7 +1978,7 @@ function bootChat() {
     window.petAPI.onChatMaximized((payload) => {
       const on = !!(payload && payload.on);
       maximizeBtn?.classList.toggle("active", on);
-      if (maximizeBtn) maximizeBtn.title = on ? "还原面板大小" : "最大化 / 还原面板大小";
+      if (maximizeBtn) maximizeBtn.title = on ? "Restore panel size" : "Maximize / Restore panel size";
       if (maximizeBtn) maximizeBtn.textContent = on ? "🗗" : "⛶";
     });
   }
@@ -2017,7 +2017,7 @@ function bootChat() {
     messagesEl.innerHTML = "";
     const loading = document.createElement("div");
     loading.className = "chat-session-empty";
-    loading.textContent = "⏳ 正在开启新对话…";
+    loading.textContent = "⏳ Starting a new conversation…";
     messagesEl.append(loading);
     setHint("");
     if (inputEl) inputEl.disabled = true;
