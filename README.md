@@ -1,8 +1,8 @@
 # dsh-desktop-pet · Whale Girl Desktop Pet
 
-![npm](https://img.shields.io/npm/v/@asahimoon/dsh-desktop-pet)
-![license](https://img.shields.io/npm/l/@asahimoon/dsh-desktop-pet)
-![build](https://img.shields.io/github/actions/workflow/status/AsahiMoon/dsh-desktop-pet/build.yml?branch=main)
+![npm](https://img.shields.io/npm/v/@parnik911-byte/dsh-desktop-pet-en)
+![license](https://img.shields.io/npm/l/@parnik911-byte/dsh-desktop-pet-en)
+![build](https://img.shields.io/github/actions/workflow/status/parnik911-byte/dsh-desktop-pet-en/build.yml?branch=main)
 
 A **DSH-linked desktop pet** that lives on your desktop: a transparent, always-on-top,
 frameless Electron window where Whale Girl lives and keeps you company while you work.
@@ -34,7 +34,7 @@ the character art and animation sheets come from that MIT project (see [NOTICE.m
 
 ```sh
 # Install from npm (once published)
-dsh plugin --profile web add @asahimoon/dsh-desktop-pet
+dsh plugin --profile web add @parnik911-byte/dsh-desktop-pet-en
 
 # Or install from a local path (development)
 dsh plugin --profile web add <path-to-this-package>
@@ -42,7 +42,7 @@ dsh plugin --profile web add <path-to-this-package>
 
 After installing, **restart `dsh web`**: the plugin loads with the profile, starts the pet window
 on the desktop automatically and begins listening to Agent state. To uninstall:
-`dsh plugin --profile web remove @asahimoon/dsh-desktop-pet`.
+`dsh plugin --profile web remove @parnik911-byte/dsh-desktop-pet-en`.
 
 > **How the pet window starts**: the plugin tries, in order, the electron from the package's
 > `node_modules`, the DSH Desktop app's own managed Electron runtime
@@ -63,7 +63,7 @@ effect on the desktop app. Install into the `desktop` profile instead:
 dsh plugin --profile desktop add <path-to-this-package>
 
 # Or from npm (once published)
-dsh plugin --profile desktop add @asahimoon/dsh-desktop-pet
+dsh plugin --profile desktop add @parnik911-byte/dsh-desktop-pet-en
 ```
 
 Then **fully quit and restart the DSH Desktop app** (not just a page reload). The plugin loads
@@ -79,7 +79,7 @@ every app start. A pet window that is already alive gets **reused**, so after ch
 **quit the old pet first** (tray icon → Quit) and then restart the DSH Desktop app — otherwise
 the old window (and old code) keeps running.
 
-**Uninstall**: `dsh plugin --profile desktop remove @asahimoon/dsh-desktop-pet`, then restart
+**Uninstall**: `dsh plugin --profile desktop remove @parnik911-byte/dsh-desktop-pet-en`, then restart
 the app. The pet's own files stay under `%APPDATA%\dsh-desktop-pet\` (config + characters) —
 see the Configuration section below.
 
@@ -289,7 +289,7 @@ npm publish          # before publishing, edit the author / repository fields in
 After publishing:
 
 ```sh
-dsh plugin --profile web add @asahimoon/dsh-desktop-pet
+dsh plugin --profile web add @parnik911-byte/dsh-desktop-pet-en
 ```
 
 > Before publishing: `npm pack --dry-run` previews what will be published (the `files`

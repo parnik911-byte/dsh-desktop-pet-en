@@ -1,7 +1,7 @@
 {
-  "name": "@asahimoon/dsh-desktop-pet",
+  "name": "@parnik911-byte/dsh-desktop-pet-en",
   "version": "0.2.0",
-  "description": "DSH desktop pet (Whale Girl) — transparent always-on-top floating window + Agent state sync + hot config + multi-character support (Codex/petdex). Install: dsh plugin --profile web add @asahimoon/dsh-desktop-pet; run standalone: npx electron main.js; package exe: npm run dist",
+  "description": "DSH desktop pet (Whale Girl) — transparent always-on-top floating window + Agent state sync + hot config + multi-character support (Codex/petdex). Install: dsh plugin --profile desktop add @parnik911-byte/dsh-desktop-pet-en; run standalone: npx electron main.js; package exe: npm run dist",
   "main": "index.mjs",
   "exports": {
     ".": "./index.mjs",
@@ -42,11 +42,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AsahiMoon/dsh-desktop-pet.git"
+    "url": "https://github.com/parnik911-byte/dsh-desktop-pet-en.git"
   },
-  "homepage": "https://github.com/AsahiMoon/dsh-desktop-pet#readme",
+  "homepage": "https://github.com/parnik911-byte/dsh-desktop-pet-en#readme",
   "bugs": {
-    "url": "https://github.com/AsahiMoon/dsh-desktop-pet/issues"
+    "url": "https://github.com/parnik911-byte/dsh-desktop-pet-en/issues"
   },
   "publishConfig": {
     "access": "public"
