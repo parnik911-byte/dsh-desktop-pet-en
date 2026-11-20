@@ -44,12 +44,44 @@ After installing, **restart `dsh web`**: the plugin loads with the profile, star
 on the desktop automatically and begins listening to Agent state. To uninstall:
 `dsh plugin --profile web remove @asahimoon/dsh-desktop-pet`.
 
-> **How the pet window starts**: the plugin prefers a locally resolvable electron (dev environment /
-> local install), and falls back to reusing the installed standalone exe (under
-> `%LOCALAPPDATA%\Programs\` etc.) when it cannot be found. If neither is available, the plugin
-> only sends signals without starting a window — first install the standalone exe (Form 2) so
-> Agent sync still works as usual. If the pet crashes unexpectedly (not a deliberate quit), it
-> restarts automatically, retrying up to 5 times.
+> **How the pet window starts**: the plugin tries, in order, the electron from the package's
+> `node_modules`, the DSH Desktop app's own managed Electron runtime
+> (`%USERPROFILE%\.dsh\electron\electron.exe`), an override via the
+> `DSH_DESKTOP_PET_ELECTRON` environment variable (absolute path to any Electron binary), and
+> finally an installed standalone exe (Form 2). If none is available, the plugin only sends
+> signals without starting a window. If the pet crashes unexpectedly (not a deliberate quit),
+> it restarts automatically, retrying up to 5 times.
+
+### Form 1b: DSH Desktop (desktop profile)
+
+The DSH Desktop app (the Electron shell) uses its **own plugin profile**
+(`~/.dsh/profiles/desktop/`), separate from the `web` profile — installing into `web` has no
+effect on the desktop app. Install into the `desktop` profile instead:
+
+```sh
+# From a local checkout (link install)
+dsh plugin --profile desktop add <path-to-this-package>
+
+# Or from npm (once published)
+dsh plugin --profile desktop add @asahimoon/dsh-desktop-pet
+```
+
+Then **fully quit and restart the DSH Desktop app** (not just a page reload). The plugin loads
+with the app's profile on startup, spawns the pet window automatically and starts syncing
+Agent state.
+
+**Check it worked**: the pet appears on the desktop a second or two after the app starts and
+reacts to Agent activity (see the sync table below). The pet window holds the single local
+port `127.0.0.1:43991`; the plugin itself opens no port.
+
+**Updates / code changes**: with a link install the plugin code is read from your checkout on
+every app start. A pet window that is already alive gets **reused**, so after changing code
+**quit the old pet first** (tray icon → Quit) and then restart the DSH Desktop app — otherwise
+the old window (and old code) keeps running.
+
+**Uninstall**: `dsh plugin --profile desktop remove @asahimoon/dsh-desktop-pet`, then restart
+the app. The pet's own files stay under `%APPDATA%\dsh-desktop-pet\` (config + characters) —
+see the Configuration section below.
 
 ### Form 2: Standalone exe
 
