@@ -220,10 +220,17 @@ function ensurePet() {
   clearTimeout(petRespawnTimer);
   const cand = candidates[petCandidateIndex % candidates.length];
   try {
+    // The DSH host runs with ELECTRON_RUN_AS_NODE=1 (its Electron acts as
+    // plain Node). Children inherit it and also run as Node — no window,
+    // instant death inside ensurePet's respawn loop. The pet needs GUI
+    // mode, so drop the flag for the child.
+    const env = { ...process.env };
+    delete env.ELECTRON_RUN_AS_NODE;
     const child = spawn(cand.exe, cand.args, {
       stdio: "ignore",
       detached: false,
       windowsHide: true,
+      env,
     });
     const startedAt = Date.now();
     child.on("error", (err) => {
