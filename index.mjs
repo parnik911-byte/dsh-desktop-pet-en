@@ -182,20 +182,64 @@ let petRespawnTimer = null;
 let petRespawnAttempts = 0;
 let petRespawnResetTimer = null;
 
-/** Spawn the pet window if a runnable electron / installed exe exists. */
+/** Candidate Electron runtimes / standalone apps the pet window can be
+ *  launched with, in preference order. A freshly downloaded Electron
+ *  binary can be killed at startup by the OS policy on some machines
+ *  (instant non-zero exit, 0x80000003) — in that case ensurePet() moves
+ *  on to the next candidate instead of respawning the same dead binary.
+ *  `DSH_DESKTOP_PET_ELECTRON` forces a working Electron by absolute path. */
+function petCandidates() {
+  const out = [];
+  if (electronPath) out.push({ exe: electronPath, args: [path.join(ROOT, "main.js")], tag: "module electron" });
+  // DSH's own managed Electron runtime (Desktop installs). It lives under
+  // the user's DSH home as electron\\electron.exe; it is signed/installed,
+  // so it starts where freshly downloaded Electron binaries get blocked.
+  const dshElectron = path.join(process.env.USERPROFILE ?? "", ".dsh", "electron", "electron.exe");
+  if (process.platform === "win32" && dshElectron && fs.existsSync(dshElectron) && electronPath !== dshElectron) {
+    out.push({ exe: dshElectron, args: [path.join(ROOT, "main.js")], tag: "DSH electron runtime" });
+  }
+  const fromEnv = process.env.DSH_DESKTOP_PET_ELECTRON;
+  if (fromEnv && fs.existsSync(fromEnv)) {
+    out.unshift({ exe: fromEnv, args: [path.join(ROOT, "main.js")], tag: "DSH_DESKTOP_PET_ELECTRON" });
+  }
+  const installed = findInstalledPetExe();
+  if (installed && !out.some((c) => c.exe === installed)) {
+    out.push({ exe: installed, args: [], tag: "installed standalone" });
+  }
+  return out;
+}
+
+let petCandidateIndex = 0;
+
+/** Spawn the pet window with the next healthy candidate. A candidate that
+ *  exits almost immediately is unhealthy (blocked binary): try the next
+ *  one; a later crash respawns the same candidate with backoff. */
 function ensurePet() {
-  const exe = electronPath ?? findInstalledPetExe();
-  if (!exe) return;
+  const candidates = petCandidates();
+  if (!candidates.length) return;
   clearTimeout(petRespawnTimer);
+  const cand = candidates[petCandidateIndex % candidates.length];
   try {
-    const child = spawn(exe, [path.join(ROOT, "main.js")], {
+    const child = spawn(cand.exe, cand.args, {
       stdio: "ignore",
       detached: false,
       windowsHide: true,
     });
-    child.on("error", () => {});
+    const startedAt = Date.now();
+    child.on("error", (err) => {
+      console.error(`[dsh-desktop-pet] pet failed to start with ${cand.tag} (${cand.exe}): ${err?.message ?? err}`);
+      advanceCandidate(candidates.length);
+    });
     child.on("exit", (code) => {
-      if (code !== 0 && petRespawnAttempts < 5) {
+      const uptimeMs = Date.now() - startedAt;
+      if (code === 0) return; // deliberate quit — never resurrect
+      console.error(`[dsh-desktop-pet] pet (${cand.tag}) exited with code ${code} after ${Math.round(uptimeMs / 1000)}s`);
+      if (uptimeMs < 5000 && candidates.length > 1) {
+        // blocked/broken binary: do not respawn it, try the next candidate
+        advanceCandidate(candidates.length);
+        return;
+      }
+      if (petRespawnAttempts < 5) {
         petRespawnAttempts++;
         const delay = Math.min(60_000, 10_000 * petRespawnAttempts);
         petRespawnTimer = setTimeout(ensurePet, delay);
@@ -209,9 +253,15 @@ function ensurePet() {
       petRespawnAttempts = 0;
     }, 60_000);
     petRespawnResetTimer.unref?.();
-  } catch {
-    /* spawn failed — pet stays off, sync messages go nowhere */
+  } catch (err) {
+    console.error(`[dsh-desktop-pet] pet spawn failed with ${cand.tag} (${cand.exe}): ${err?.message ?? err}`);
+    advanceCandidate(candidates.length);
   }
+}
+
+function advanceCandidate(count) {
+  petCandidateIndex = count ? (petCandidateIndex + 1) % count : 0;
+  petRespawnTimer = setTimeout(ensurePet, 500);
 }
 
 // ---------------------------------------------------------------------------
@@ -231,8 +281,7 @@ function ensurePet() {
 // project was built and smoke-tested against.
 let electronBootstrapStarted = false;
 function bootPetWindow() {
-  const exe = electronPath ?? findInstalledPetExe();
-  if (exe) {
+  if (petCandidates().length) {
     ensurePet();
     return;
   }
