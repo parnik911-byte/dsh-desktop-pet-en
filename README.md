@@ -13,7 +13,7 @@ to use as a regular desktop pet.
 Based on [vlln/whale-girl](https://github.com/vlln/whale-girl) (the web-based Whale Girl pet plugin);
 the character art and animation sheets come from that MIT project (see [NOTICE.md](NOTICE.md)).
 
-![Screenshot](docs/screenshot.png)
+![Screenshot](docs/screenshot.png)![Screenshot](docs/screenshot-caco.png)
 
 ## ✨ Features
 
