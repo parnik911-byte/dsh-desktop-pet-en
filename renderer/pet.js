@@ -1129,6 +1129,9 @@ async function boot() {
     const init = await window.petAPI.getConfig();
     if (init && init.config) {
       CONFIG = { ...DEFAULT_CONFIG, ...init.config, walk: { ...DEFAULT_CONFIG.walk, ...(init.config.walk ?? {}) } };
+      // the settings dropdown must show the ACTIVE character, not the
+      // hardcoded whale-girl default CHARACTER_ID starts with
+      if (CONFIG.character) CHARACTER_ID = CONFIG.character;
       document.body.style.setProperty("--pet-size", `${CONFIG.size}px`);
     }
     if (Array.isArray(init?.roles)) ROLES = init.roles;
@@ -1159,6 +1162,7 @@ async function boot() {
         const init = await window.petAPI.getConfig();
         if (init?.config) {
           CONFIG = { ...DEFAULT_CONFIG, ...init.config, walk: { ...DEFAULT_CONFIG.walk, ...(init.config.walk ?? {}) } };
+          if (CONFIG.character) CHARACTER_ID = CONFIG.character;
         }
         if (Array.isArray(init?.roles)) ROLES = init.roles;
         fillSettingsValues();

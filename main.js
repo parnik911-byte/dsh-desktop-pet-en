@@ -646,12 +646,16 @@ function startSignalServer() {
       try {
         const signal = JSON.parse(body);
         if (signal && typeof signal.type === "string" && signal.type === "config" && signal.config) {
-          // hot config: merge, persist, apply window-level, forward to all windows
+          // hot config: merge OVER the current config (the plugin sends only
+          // fields changed in DSH settings), persist, apply window-level,
+          // forward to all windows. Never rebuild from DEFAULT_CONFIG here —
+          // that would clobber pet-side config.json values (e.g. a custom
+          // character) with defaults the user never chose.
           const prevCharacter = config.character;
           config = {
-            ...DEFAULT_CONFIG,
+            ...config,
             ...signal.config,
-            walk: { ...DEFAULT_CONFIG.walk, ...(signal.config.walk ?? {}) },
+            walk: { ...config.walk, ...(signal.config.walk ?? {}) },
           };
           if (config.character !== prevCharacter) refreshTrayIcon();
           saveConfig();

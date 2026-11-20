@@ -986,8 +986,21 @@ export function apply(ctx) {
         });
         config = { ...DEFAULTS, ...(scope.get() ?? {}) };
         scope.watch((next) => {
+          const prev = config;
           config = { ...DEFAULTS, ...(next ?? {}) };
-          sendSignal({ type: "config", config });
+          // Push ONLY the fields the user just changed in DSH settings.
+          // A full push would clobber the pet-side config.json (settings panel
+          // / manual edits) with stale DSH defaults — e.g. a size edit would
+          // silently reset a custom character back to whale-girl.
+          const changed = {};
+          for (const key of Object.keys(config)) {
+            if (JSON.stringify(config[key]) !== JSON.stringify(prev[key])) {
+              changed[key] = config[key];
+            }
+          }
+          if (Object.keys(changed).length) {
+            sendSignal({ type: "config", config: changed });
+          }
         });
       }
     } catch (err) {
@@ -1276,11 +1289,12 @@ export function apply(ctx) {
     }),
   ];
 
-  // Push the resolved config to the pet shortly after boot (the pet may still
-  // be starting; it also re-requests config on boot when the plugin is live).
-  setTimeout(() => {
-    sendSignal({ type: "config", config });
-  }, 1500);
+  // No boot push: the pet reads its own config.json on start (getConfig IPC),
+  // which is the single source of truth for character/size/opacity. Pushing
+  // the DSH-settings snapshot here would overwrite pet-side changes with
+  // stale defaults at every DSH start (the "character keeps reverting to
+  // whale-girl" bug). DSH settings still propagate live via scope.watch
+  // whenever the user actually edits them.
 
   ctx.effect(() => () => {
     clearInterval(heartbeat);

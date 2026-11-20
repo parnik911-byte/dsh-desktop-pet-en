@@ -130,7 +130,9 @@ questions and simple tasks no longer need the browser.
 ## ⚙️ Configuration
 
 Plugin form: configuration is registered into the DSH settings (`dsh-desktop-pet:` section) and
-takes effect live.
+takes effect live while the pet window is running. The pet's own `%APPDATA%/dsh-desktop-pet/config.json`
+(settings panel or manual edit) is the persistent source of truth — DSH settings edits are applied as a
+field-wise patch, so they never overwrite a character (or any other field) chosen in the pet itself.
 
 ```yaml
 dsh-desktop-pet:
@@ -148,7 +150,8 @@ dsh-desktop-pet:
 ```
 
 The standalone exe form edits `%APPDATA%/dsh-desktop-pet/config.json` directly; saving takes
-effect live.
+effect live. The plugin form uses the same `config.json` — the DSH settings registration is only an
+extra live-edit path, not a second store.
 
 ## 🎭 Multi-Character / Multi-Format Support
 
