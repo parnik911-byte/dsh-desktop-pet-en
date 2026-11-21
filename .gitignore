@@ -1,6 +1,9 @@
 # dependencies
 node_modules/
 
+assets/characters/cacodemon/frames
+assets/characters/cacodemon/frames_orig
+
 # build output (electron-builder)
 dist/
 *.blockmap
