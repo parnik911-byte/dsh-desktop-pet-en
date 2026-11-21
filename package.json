@@ -1,7 +1,7 @@
 {
   "name": "@parnik911-byte/dsh-desktop-pet-en",
   "version": "0.2.0",
-  "description": "DSH desktop pet (Whale Girl) — transparent always-on-top floating window + Agent state sync + hot config + multi-character support (Codex/petdex). Install: dsh plugin --profile desktop add @parnik911-byte/dsh-desktop-pet-en; run standalone: npx electron main.js; package exe: npm run dist",
+  "description": "DSH desktop pet (Cacodemon by default, Whale Girl included) — transparent always-on-top floating window + Agent state sync + hot config + multi-character support (Codex/petdex). Install: dsh plugin --profile desktop add @parnik911-byte/dsh-desktop-pet-en; run standalone: npx electron main.js; package exe: npm run dist",
   "main": "index.mjs",
   "exports": {
     ".": "./index.mjs",
@@ -33,6 +33,7 @@
     "desktop-pet",
     "electron",
     "pet",
+    "cacodemon",
     "whale-girl",
     "codex-pet",
     "petdex",
@@ -61,6 +62,9 @@
     "preload.js",
     "renderer/",
     "assets/1.png",
+    "assets/characters/cacodemon/",
+    "!assets/characters/cacodemon/frames/",
+    "!assets/characters/cacodemon/frames_orig/",
     "assets/characters/whale-girl/",
     "cordis.patch.yml",
     "docs/screenshot.png",
@@ -93,6 +97,8 @@
       "preload.js",
       "renderer/**",
       "assets/**",
+      "!assets/characters/cacodemon/frames/",
+      "!assets/characters/cacodemon/frames_orig/",
       "package.json"
     ],
     "asarUnpack": [

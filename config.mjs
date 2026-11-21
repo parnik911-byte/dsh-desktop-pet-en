@@ -36,7 +36,7 @@ export const NAMESPACE = "dsh-desktop-pet";
 export const DEFAULTS = Object.freeze({
   size: 110, // pet window side px (64-256)
   opacity: 1, // window opacity 0.2-1
-  character: "whale-girl", // character id under assets/characters/
+  character: "cacodemon", // character id under assets/characters/ (default pet)
   walk: {
     enabled: true,
     intervalMs: 300000, // 5 min between walks

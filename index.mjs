@@ -991,7 +991,7 @@ export function apply(ctx) {
           // Push ONLY the fields the user just changed in DSH settings.
           // A full push would clobber the pet-side config.json (settings panel
           // / manual edits) with stale DSH defaults — e.g. a size edit would
-          // silently reset a custom character back to whale-girl.
+          // silently reset a custom character back to the default.
           const changed = {};
           for (const key of Object.keys(config)) {
             if (JSON.stringify(config[key]) !== JSON.stringify(prev[key])) {
@@ -1293,7 +1293,7 @@ export function apply(ctx) {
   // which is the single source of truth for character/size/opacity. Pushing
   // the DSH-settings snapshot here would overwrite pet-side changes with
   // stale defaults at every DSH start (the "character keeps reverting to
-  // whale-girl" bug). DSH settings still propagate live via scope.watch
+  // the default" bug). DSH settings still propagate live via scope.watch
   // whenever the user actually edits them.
 
   ctx.effect(() => () => {

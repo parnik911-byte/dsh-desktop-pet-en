@@ -19,7 +19,7 @@ const CHARACTERS_BASE = "pet://assets/characters/";
 const DEFAULT_CONFIG = Object.freeze({
   size: 110,
   opacity: 1,
-  character: "whale-girl",
+  character: "cacodemon",
   walk: { enabled: true, intervalMs: 300000, durationMs: 26000 },
   sleepAfterMs: 60000,
   taskBarPersistent: true,
@@ -275,8 +275,8 @@ function updateChatAvatar() {
 // ---------------------------------------------------------------------------
 // sprite frame player (CSS animation driven)
 // ---------------------------------------------------------------------------
-let ASSET_BASE = `${CHARACTERS_BASE}whale-girl/`;
-let CHARACTER_ID = "whale-girl";
+let ASSET_BASE = `${CHARACTERS_BASE}cacodemon/`;
+let CHARACTER_ID = "cacodemon";
 const anim = { timer: 0, frameTimer: 0, frame: 0, dir: 1, def: null, onEnd: null, motionTimer: 0, motionName: null };
 let innerEl = null;
 
@@ -1095,19 +1095,21 @@ setInterval(() => {
 // boot
 // ---------------------------------------------------------------------------
 let STATES = null;
+// Mirrors the cacodemon manifest (the default pet) so a failed manifest load
+// still plays the right frame counts for the default character.
 const FALLBACK_STATES = {
-  idle: { sheet: "idle.png", frames: 3, fps: 2, playback: "blink" },
-  walk: { sheet: "walk.png", frames: 3, fps: 6, playback: "pingpong" },
-  sleep: { sheet: "sleep.png", frames: 2, fps: 1, playback: "loop" },
-  wake: { sheet: "wake.png", frames: 2, fps: 3, playback: "once" },
-  eat: { sheet: "eat.png", frames: 3, fps: 8, playback: "loop" },
-  play: { sheet: "play.png", frames: 3, fps: 4, playback: "loop" },
-  joy: { sheet: "joy.png", frames: 2, fps: 5, playback: "loop" },
+  idle: { sheet: "idle.png", frames: 7, fps: 2, playback: "blink" },
+  walk: { sheet: "walk.png", frames: 8, fps: 6, playback: "pingpong" },
+  sleep: { sheet: "sleep.png", frames: 8, fps: 1, playback: "loop" },
+  wake: { sheet: "wake.png", frames: 5, fps: 3, playback: "once" },
+  eat: { sheet: "eat.png", frames: 2, fps: 8, playback: "loop" },
+  play: { sheet: "play.png", frames: 7, fps: 4, playback: "loop" },
+  joy: { sheet: "joy.png", frames: 5, fps: 5, playback: "loop" },
   drag: { sheet: "drag.png", frames: 1, fps: 5, motion: "tilt", playback: "loop" },
-  celebrate: { sheet: "celebrate.png", frames: 3, fps: 4, playback: "loop" },
-  welcome: { sheet: "welcome.png", frames: 2, fps: 3, playback: "loop" },
-  think: { sheet: "think.png", frames: 1, fps: 2, motion: "float", playback: "loop" },
-  working: { sheet: "working.png", frames: 3, fps: 3, playback: "loop" },
+  celebrate: { sheet: "celebrate.png", frames: 5, fps: 4, playback: "loop" },
+  welcome: { sheet: "welcome.png", frames: 5, fps: 3, playback: "loop" },
+  think: { sheet: "think.png", frames: 5, fps: 2, motion: "float", playback: "loop" },
+  working: { sheet: "working.png", frames: 7, fps: 3, playback: "loop" },
   error: { sheet: "error.png", frames: 2, fps: 8, motion: "shake", playback: "once" },
   disappointed: { sheet: "disappointed.png", frames: 2, fps: 2, playback: "loop" },
   wait: { sheet: "wait.png", frames: 1, fps: 2, motion: "wiggle", playback: "loop" },
@@ -1130,7 +1132,7 @@ async function boot() {
     if (init && init.config) {
       CONFIG = { ...DEFAULT_CONFIG, ...init.config, walk: { ...DEFAULT_CONFIG.walk, ...(init.config.walk ?? {}) } };
       // the settings dropdown must show the ACTIVE character, not the
-      // hardcoded whale-girl default CHARACTER_ID starts with
+      // hardcoded cacodemon default CHARACTER_ID starts with
       if (CONFIG.character) CHARACTER_ID = CONFIG.character;
       document.body.style.setProperty("--pet-size", `${CONFIG.size}px`);
     }
@@ -1184,7 +1186,7 @@ async function boot() {
 
   // load the active character's manifest (fallback states if it fails)
   try {
-    await loadCharacter(CONFIG.character || "whale-girl");
+    await loadCharacter(CONFIG.character || "cacodemon");
   } catch {
     /* fall through to FALLBACK_STATES */
   }

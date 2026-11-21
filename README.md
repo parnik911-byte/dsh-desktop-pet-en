@@ -1,17 +1,18 @@
-# dsh-desktop-pet · Whale Girl Desktop Pet
+# dsh-desktop-pet · Cacodemon Desktop Pet
 
 ![npm](https://img.shields.io/npm/v/@parnik911-byte/dsh-desktop-pet-en)
 ![license](https://img.shields.io/npm/l/@parnik911-byte/dsh-desktop-pet-en)
 ![build](https://img.shields.io/github/actions/workflow/status/parnik911-byte/dsh-desktop-pet-en/build.yml?branch=main)
 
 A **DSH-linked desktop pet** that lives on your desktop: a transparent, always-on-top,
-frameless Electron window where Whale Girl lives and keeps you company while you work.
-It is both a **DSH (DeepSeek Harness) bundle plugin** (one-command install with `dsh plugin`,
-agent state drives the pet in real time), and can also be **packaged standalone as an exe**
-to use as a regular desktop pet.
+frameless Electron window where Cacodemon (the default pet) lives and keeps you company
+while you work. It is both a **DSH (DeepSeek Harness) bundle plugin** (one-command install
+with `dsh plugin`, agent state drives the pet in real time), and can also be **packaged
+standalone as an exe** to use as a regular desktop pet.
 
 Based on [vlln/whale-girl](https://github.com/vlln/whale-girl) (the web-based Whale Girl pet plugin);
-the character art and animation sheets come from that MIT project (see [NOTICE.md](NOTICE.md)).
+the Whale Girl character art and animation sheets come from that MIT project (see
+[NOTICE.md](NOTICE.md)), while the default Cacodemon art was created for this project.
 
 ![Screenshot](docs/screenshot.png)![Screenshot](docs/screenshot-caco.png)
 
@@ -20,8 +21,9 @@ the character art and animation sheets come from that MIT project (see [NOTICE.m
 - 🐋 **Transparent always-on-top pet**: not on the taskbar, draggable, remembers its position — sits with you, leaves with you
 - 🔗 **DSH state sync**: task complete 🎉 celebrate → 💤 nap a little → wake up automatically; a new task wakes it up immediately;
   thinking / waiting / errors each have their own animation (see the sync table below)
-- 🎨 **Multi-character / multi-format support**: Whale Girl built in, plus the Codex/petdex ecosystem (boba, aemeath, etc.),
-  character folders are plug-and-play, all wired into the same state machine
+- 🎨 **Multi-character / multi-format support**: Cacodemon built in as the default pet (Whale Girl also bundled),
+  plus the Codex/petdex ecosystem (boba, aemeath, etc.), character folders are plug-and-play,
+  all wired into the same state machine
 - ⚙️ **Hot config**: size / opacity / character / wandering / sleep interval take effect instantly (DSH settings UI or config.json)
 - 🖱️ **Native interaction**: left-drag to move, right-click action menu (feed / play / celebrate / settings / click-through / quit), click for a reaction
 - 🧊 **Click-through / 📌 desktop bottom**: when you want to "close" the pet for a while, it stays out of the way
@@ -44,13 +46,18 @@ After installing, **restart `dsh web`**: the plugin loads with the profile, star
 on the desktop automatically and begins listening to Agent state. To uninstall:
 `dsh plugin --profile web remove @parnik911-byte/dsh-desktop-pet-en`.
 
-> **How the pet window starts**: the plugin tries, in order, the electron from the package's
-> `node_modules`, the DSH Desktop app's own managed Electron runtime
-> (`%USERPROFILE%\.dsh\electron\electron.exe`), an override via the
-> `DSH_DESKTOP_PET_ELECTRON` environment variable (absolute path to any Electron binary), and
-> finally an installed standalone exe (Form 2). If none is available, the plugin only sends
-> signals without starting a window. If the pet crashes unexpectedly (not a deliberate quit),
-> it restarts automatically, retrying up to 5 times.
+> **How the pet window starts**: the plugin tries, in order, the override from the
+> `DSH_DESKTOP_PET_ELECTRON` environment variable (absolute path to any Electron binary),
+> the electron from the package's `node_modules`, the DSH Desktop app's own managed
+> Electron runtime (`%USERPROFILE%\.dsh\electron\electron.exe`), and finally an installed
+> standalone exe (Form 2). If none resolves, the plugin installs a local Electron copy once
+> (one-shot bootstrap into the bundle's `node_modules`) and starts the pet when it finishes.
+> A candidate that dies almost instantly (e.g. a freshly downloaded binary the OS policy
+> blocks) is skipped in favor of the next one; a later crash restarts the same candidate
+> with backoff (up to 5 restarts). A deliberate quit (exit code 0) is never resurrected.
+> The plugin also strips `ELECTRON_RUN_AS_NODE` from the pet's environment — the DSH host
+> runs with it set, and a child inheriting it would run as plain Node instead of opening
+> a window.
 
 ### Form 1b: DSH Desktop (desktop profile)
 
@@ -170,7 +177,7 @@ field-wise patch, so they never overwrite a character (or any other field) chose
 dsh-desktop-pet:
   size: 110              # window size px (64–256)
   opacity: 1             # opacity (0.2–1)
-  character: whale-girl  # character id
+  character: cacodemon  # character id (default pet on fresh installs; an existing config.json keeps its choice)
   walk:
     enabled: true        # wander toggle
     intervalMs: 300000   # wander interval (ms)
@@ -190,15 +197,16 @@ extra live-edit path, not a second store.
 The pet discovers characters in **two character directories**:
 
 1. `%APPDATA%/dsh-desktop-pet/characters/<id>/` — **single managed directory** (written at runtime):
-   the built-in character (Whale Girl) is automatically copied in on **first launch**, living with
-   petdex imports and manually placed characters; open the folder to view, edit and delete them
+   the built-in characters (**Cacodemon** — the default pet — and Whale Girl) are automatically
+   copied in on **first launch**, living with petdex imports and manually placed characters; open
+   the folder to view, edit and delete them
 2. `assets/characters/<id>/` — bundled with the package (read-only, used as fallback when the
    user directory does not have them)
 
-> The built-in character is **copy-to-manage**: to change Whale Girl's art, just edit the files in
-> `characters/whale-girl/` (user directory wins). Deleting the folder restores it on the next
-> launch (effectively "restore defaults"); to remove it for good, write one `whale-girl` line in
-> `.ignore`.
+> The built-in characters are **copy-to-manage**: to change Cacodemon's art, just edit the files in
+> `characters/cacodemon/` (user directory wins); Whale Girl works the same way via
+> `characters/whale-girl/`. Deleting a built-in folder restores it on the next launch
+> (effectively "restore defaults"); to remove it for good, write one `<id>` line in `.ignore`.
 
 How to add a character:
 
@@ -212,7 +220,7 @@ idle, never a blank screen):
 
 | Format | Marker files | Description |
 |---|---|---|
-| native | `manifest.json` + per-state PNG strips | This project's native format (Whale Girl) |
+| native | `manifest.json` + per-state PNG strips | This project's native format (Cacodemon, the default pet, and Whale Girl) |
 | codex | `pet.json` + spritesheet | Codex / petdex ecosystem; supports custom `animations` and the official default table, states auto-map |
 
 Other notes:
@@ -223,7 +231,7 @@ Other notes:
 - To delete a character: delete the `characters/<id>/` folder (the built-in character restores on
   next launch unless listed in `.ignore`)
 - Character art copyright belongs to the original authors; confirm the license before redistributing
-  (the built-in whale-girl in this project is MIT)
+  (the built-in whale-girl in this project is MIT; cacodemon art is local, see NOTICE.md)
 
 ## 🖱️ Interaction
 
@@ -303,7 +311,7 @@ config.mjs         # config schema (schemastery) + defaults (single source of tr
 main.js            # Electron main process: window/tray/click-through/persistence/signal service/character scan/hot config
 preload.js         # secure bridge (contextIsolation)
 renderer/          # frame player + state machine + interaction + DSH signal handling + character adapters
-assets/characters/ # built-in character (whale-girl, MIT)
+assets/characters/ # built-in characters (cacodemon — default; whale-girl, MIT)
 scripts/smoke/     # smoke tests (real input + CDP, see "Development")
 cordis.patch.yml   # bundle patch: mount the Node half
 docs/              # documentation screenshots
@@ -312,6 +320,8 @@ docs/              # documentation screenshots
 ## 📄 License and Acknowledgements
 
 - This project is MIT ([LICENSE](LICENSE))
+- The Cacodemon character art was created for this project; the Doom-derived design remains
+  subject to its authors' rights, see [NOTICE.md](NOTICE.md)
 - The Whale Girl character sprites and animation sheets come from [vlln/whale-girl](https://github.com/vlln/whale-girl)
   (MIT; character art by ZipZipPipe), see [NOTICE.md](NOTICE.md)
 - Runtime uses Electron (MIT)

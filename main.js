@@ -3,7 +3,8 @@
  * A transparent, frameless, always-on-top desktop pet window with system tray
  * support, hot-reloadable config (size / opacity / walk / sleep / character)
  * and a local HTTP signal channel for DSH agent-state sync. Sprites live under
- * ../assets/characters/<id>/ (whale-girl set is MIT, see NOTICE.md). Pet logic
+ * ../assets/characters/<id>/ (cacodemon is the default pet; whale-girl set
+ * is MIT, see NOTICE.md). Pet logic
  * lives in the renderer; this process owns the window, tray, click-through,
  * position/config persistence, character discovery and the pet:// protocol.
  */
@@ -94,7 +95,7 @@ const SIGNAL_HOST = "127.0.0.1";
 const DEFAULT_CONFIG = Object.freeze({
   size: 110,
   opacity: 1,
-  character: "whale-girl",
+  character: "cacodemon",
   walk: { enabled: true, intervalMs: 300000, durationMs: 26000 },
   sleepAfterMs: 60000,
   bottomMode: false, // pin the pet below other windows (desktop wallpaper style)
@@ -239,17 +240,17 @@ function characterAsset(id, file) {
   return path.join(CHARACTERS_DIR, id, file);
 }
 
-/** Crop ONE idle frame (256x256, first of the sprite strip) out of idle.png
- *  so the tray/window icon shows a single whale-girl instead of the whole
- *  3-frame sprite strip squashed into the icon box. idle.png is 768x256 —
- *  frame 0 is x∈[0,256). Falls back to the raw file when cropping fails. */
-function whaleGirlFrameIcon() {
-  const png = characterAsset("whale-girl", "idle.png");
+/** Crop ONE idle frame (first of the sprite strip) out of a character's
+ *  idle.png so the tray/window icon shows a single character instead of the
+ *  whole strip squashed into the icon box. Falls back to the raw file when
+ *  cropping fails. */
+function characterFrameIcon(id) {
+  const png = characterAsset(id, "idle.png");
   try {
     const img = nativeImage.createFromPath(png);
     if (img.isEmpty()) return img;
     const { width, height } = img.getSize();
-    // the sprite strip is 3 square frames side by side; take the first one
+    // the sprite strip is N square frames side by side; take the first one
     if (width > height && height > 0) {
       const frame = img.crop({ x: 0, y: 0, width: Math.min(height, width), height });
       if (!frame.isEmpty()) return frame;
@@ -261,8 +262,17 @@ function whaleGirlFrameIcon() {
   return nativeImage.createFromPath(png);
 }
 
-/** Window icon: whale-girl idle frame (single cropped frame, not the strip). */
-const WINDOW_ICON = () => whaleGirlFrameIcon();
+/** Window/tray icon: the ACTIVE character's idle frame (single cropped frame,
+ *  not the strip). Codex characters have no idle.png — for them (or if the
+ *  active art is missing) fall back to the whale-girl art so the icon is
+ *  never blank. */
+function defaultPetIcon() {
+  const frame = characterFrameIcon(config.character || "cacodemon");
+  if (!frame.isEmpty()) return frame;
+  return characterFrameIcon("whale-girl");
+}
+
+const WINDOW_ICON = () => defaultPetIcon();
 
 function applyBottomMode(enabled) {
   if (!win || win.isDestroyed()) return;
@@ -516,10 +526,11 @@ function copyDirRecursive(src, dest) {
 }
 
 /**
- * Sync the BUILT-IN characters (whale-girl) into the writable user characters
- * dir so EVERY character lives in one place — the user opens the folder and
- * sees whale-girl next to the imported ones, can replace its art, or delete
- * it. The built-in asar copy stays as a read-only fallback (user dir wins on
+ * Sync the BUILT-IN characters (cacodemon, whale-girl) into the writable
+ * user characters dir so EVERY character lives in one place — the user opens
+ * the folder and sees the built-ins next to the imported ones, can replace
+ * their art, or delete them. The built-in asar copy stays as a read-only
+ * fallback (user dir wins on
  * conflict, see scanCharacters / resolveCharacterFile).
  *
  * Copy-if-missing semantics: a missing folder is re-copied on the next boot
@@ -861,8 +872,8 @@ function createWindow() {
 // ---------------------------------------------------------------------------
 function trayIcon() {
   // Custom tray icon: use assets/1.png when present (ships with the package).
-  // Resize for the platform; fall back to the whale-girl idle frame so the
-  // tray is never blank when that file is missing.
+  // Resize for the platform; fall back to the active character's idle frame
+  // so the tray is never blank when that file is missing.
   const customPng = path.join(ROOT, "assets", "1.png");
   try {
     if (fs.existsSync(customPng)) {
@@ -873,15 +884,15 @@ function trayIcon() {
       }
     }
   } catch {
-    /* fall through to whale-girl */
+    /* fall through to the active character */
   }
-  // always use whale-girl art: codex characters have no idle.png, and
+  // Use the active character's art: codex characters have no idle.png, and
   // createFromPath silently returns an EMPTY image for missing files — an
   // invisible tray icon. Resolves the user copy first (customized art wins),
-  // then crops to the single idle frame so the tray shows one whale-girl
-  // rather than the squashed 3-frame sprite strip.
+  // then crops to the single idle frame so the tray shows one character
+  // rather than the squashed sprite strip (whale-girl is the last resort).
   try {
-    const frame = whaleGirlFrameIcon();
+    const frame = defaultPetIcon();
     if (!frame.isEmpty()) {
       // Windows tray is 16x16 DIP; 32x32 covers per-monitor DPI scaling.
       const small = frame.resize({ width: 16, height: 16, quality: "best" });
@@ -1533,7 +1544,7 @@ if (!gotLock) {
     if (process.platform === "darwin" && app.dock?.hide) app.dock.hide();
     loadConfig();
     importExternalCharacters(); // petdex pets -> userData/characters
-    syncBuiltinCharacters(); // whale-girl -> userData/characters (single managed folder)
+    syncBuiltinCharacters(); // built-in characters -> userData/characters (single managed folder)
     registerPetProtocol();
     setupIpc();
     startSignalServer();
